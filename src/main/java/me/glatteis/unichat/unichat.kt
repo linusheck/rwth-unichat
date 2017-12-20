@@ -1,4 +1,5 @@
 import me.glatteis.unichat.crawler.UniData
+import spark.Spark
 import spark.kotlin.after
 import spark.kotlin.halt
 import spark.kotlin.ignite
@@ -10,6 +11,9 @@ import spark.kotlin.ignite
 
 
 fun main(args: Array<String>) {
+    val portAsString = if (args.isNotEmpty()) args[0] else "4567"
+    val port = portAsString.toInt()
+    Spark.port(port)
     UniData.loadFromJson()
 
     val http = ignite()

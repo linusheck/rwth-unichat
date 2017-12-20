@@ -1,0 +1,1 @@
+web: java -cp target/classes/:target/dependency/* me.glatteis.unichat.UnichatKt $PORT target/classes/
