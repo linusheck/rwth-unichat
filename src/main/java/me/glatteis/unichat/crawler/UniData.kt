@@ -3,6 +3,7 @@ package me.glatteis.unichat.crawler
 import com.fatboyindustrial.gsonjodatime.Converters
 import com.google.gson.GsonBuilder
 import me.glatteis.unichat.data.Room
+import me.glatteis.unichat.data.SendableRoom
 import me.glatteis.unichat.now
 import java.io.File
 import kotlin.concurrent.thread
@@ -53,11 +54,22 @@ object UniData {
 
     fun allAsSendable() : String {
         val (weekday, time) = now()
-        return gson.toJson(mapOf("rooms" to rooms.map {
+        val sendRooms = rooms.map {
             it.sendable(weekday, time)
         }.sortedByDescending {
             it.seats
-        }))
+        }
+
+        val buildings = HashMap<String, ArrayList<SendableRoom>>()
+
+        for (r in sendRooms) {
+            if (!buildings.containsKey(r.address)) {
+                buildings[r.address] = ArrayList()
+            }
+            buildings[r.address]!!.add(r)
+        }
+
+        return gson.toJson(mapOf("buildings" to buildings))
     }
 
     fun findRoomsInJson(query: String): String {
