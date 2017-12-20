@@ -4,7 +4,23 @@ import org.joda.time.LocalTime
 import java.io.Serializable
 import java.util.*
 
-data class Room(val name: String, val id: String, val address: String, val calendar: RoomCalendar): Serializable
+data class Room(val name: String, val id: String, val address: String, val seats: Int, val calendar: RoomCalendar) {
+    fun sendable(day: Weekday, time: LocalTime): SendableRoom {
+        val current = calendar.occurrences.filter {
+            it.weekday == day && it.start.isBefore(time) && it.end.isAfter(time)
+        }
+        val toReturn = if (current.isEmpty()) {
+            ""
+        } else {
+            current.joinToString(", ") {
+                it.name
+            }
+        }
+        return SendableRoom(name, id, address, seats, current = toReturn)
+    }
+}
+
+data class SendableRoom(val name: String, val id: String, val address: String, val seats: Int, val current: String)
 
 enum class Weekday: Serializable{
     MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;
@@ -15,6 +31,6 @@ enum class Weekday: Serializable{
     }
 }
 
-data class Occurrence(val name: String, val start: LocalTime, val end: LocalTime, val weekday: Weekday): Serializable
+data class Occurrence(val name: String, val start: LocalTime, val end: LocalTime, val weekday: Weekday)
 
 data class RoomCalendar(val occurrences: ArrayList<Occurrence>): Serializable

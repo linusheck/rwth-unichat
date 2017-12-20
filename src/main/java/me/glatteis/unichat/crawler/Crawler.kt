@@ -40,6 +40,7 @@ class Crawler {
         // For every room in this part of the uni, get detailed info
         val rooms = ArrayList<Room>()
 
+
         for (link in allLinks) {
             val subDocument = Jsoup.connect(pageBeginning + link).get()
             println(subDocument.title())
@@ -49,11 +50,12 @@ class Crawler {
                 if (!element.className().startsWith("blue")) continue
                 val tds = element.getElementsByTag("td")
                 val id = tds[0].html()
-                val name = tds[1].html()
+                val name = if (tds[1].html().isBlank()) id else tds[1].html()
                 val address = tds[2].html()
+                val seats = tds[3].html().toIntOrNull() ?: 0
                 val timesLink = tds[7].getElementsByTag("a").attr("href")
                 val calendar = getTimes(timesLink)
-                val room = Room(name, id, address, calendar)
+                val room = Room(name, id, address, seats, calendar)
                 rooms.add(room)
                 print("#")
             }
