@@ -53,9 +53,9 @@ object UniData {
 
     fun allAsSendable() : String {
         val (weekday, time) = now()
-        return  gson.toJson(rooms.map {
+        return gson.toJson(mapOf("rooms" to rooms.map {
             it.sendable(weekday, time)
-        })
+        }))
     }
 
     fun findRoomsInJson(query: String): String {
