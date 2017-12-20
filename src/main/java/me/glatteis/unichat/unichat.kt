@@ -1,13 +1,13 @@
+package me.glatteis.unichat
+
 import me.glatteis.unichat.crawler.UniData
 import spark.Spark
-import spark.kotlin.after
 import spark.kotlin.halt
 import spark.kotlin.ignite
 
 /**
  * Created by Linus on 19.12.2017!
  */
-
 
 
 fun main(args: Array<String>) {
