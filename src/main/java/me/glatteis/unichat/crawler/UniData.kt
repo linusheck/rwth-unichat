@@ -55,6 +55,8 @@ object UniData {
         val (weekday, time) = now()
         return gson.toJson(mapOf("rooms" to rooms.map {
             it.sendable(weekday, time)
+        }.sortedByDescending {
+            it.seats
         }))
     }
 
