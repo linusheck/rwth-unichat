@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import me.glatteis.unichat.data.Room
 import me.glatteis.unichat.now
 import java.io.File
+import kotlin.concurrent.thread
 
 /**
  * Created by Linus on 19.12.2017!
@@ -34,8 +35,10 @@ object UniData {
     }
 
     fun crawlAndSave() {
-        crawl()
-        File("week.json").writeText(asJson())
+        thread {
+            crawl()
+            File("week.json").writeText(asJson())
+        }
     }
 
     fun loadFromJson() {
