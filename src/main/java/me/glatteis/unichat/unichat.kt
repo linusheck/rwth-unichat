@@ -14,7 +14,7 @@ fun main(args: Array<String>) {
     val portAsString = if (args.isNotEmpty()) args[0] else "4567"
     val port = portAsString.toInt()
     Spark.port(port)
-    UniData.loadFromJson()
+    UniData.init()
 
     val http = ignite()
     // Returns a complete list of rooms

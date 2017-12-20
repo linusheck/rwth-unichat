@@ -3,11 +3,7 @@ package me.glatteis.unichat.crawler
 import com.fatboyindustrial.gsonjodatime.Converters
 import com.google.gson.GsonBuilder
 import me.glatteis.unichat.data.Room
-import me.glatteis.unichat.data.SendableRoom
-import me.glatteis.unichat.data.Weekday
 import me.glatteis.unichat.now
-import org.joda.time.DateTime
-import org.joda.time.LocalTime
 import java.io.File
 
 /**
@@ -17,6 +13,19 @@ object UniData {
 
     private val rooms = ArrayList<Room>()
     private val gson = Converters.registerAll(GsonBuilder()).create()
+
+    fun init() {
+        val file =  File("week.json")
+        if (!file.exists()) {
+            println("Crawling...")
+            crawlAndSave()
+            println("Done.")
+        } else {
+            println("Loading file...")
+            loadFromJson()
+            println("Done.")
+        }
+    }
 
     fun crawl() {
         val crawler = Crawler()
