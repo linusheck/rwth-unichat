@@ -1,9 +1,9 @@
 package me.glatteis.unichat
 
 import me.glatteis.unichat.crawler.UniData
-import spark.Spark
 import spark.kotlin.halt
 import spark.kotlin.ignite
+import spark.kotlin.port
 
 /**
  * Created by Linus on 19.12.2017!
@@ -12,11 +12,10 @@ import spark.kotlin.ignite
 
 fun main(args: Array<String>) {
     val portAsString = if (args.isNotEmpty()) args[0] else "4567"
-    val port = portAsString.toInt()
-    Spark.port(port)
+    val thisPort = portAsString.toInt()
     UniData.init()
 
-    val http = ignite()
+    val http = ignite().port(thisPort)
     // Returns a complete list of rooms
     http.get("/allrooms") {
         type("application/json")
