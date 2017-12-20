@@ -86,7 +86,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>me.glatteis.unichat.UniChatKt</mainClass>
+                            <mainClass>me.glatteis.unichat.UnichatKt</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
