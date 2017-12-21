@@ -62,6 +62,7 @@ class Crawler {
             for (element in table.allElements) {
                 if (!element.className().startsWith("blue")) continue
                 val tds = element.getElementsByTag("td")
+                if (tds[5].html() != "Hörsaal") continue
                 val id = tds[0].html()
                 val name = if (tds[1].html().isBlank()) id else tds[1].html()
                 val address = tds[2].html()
