@@ -1,10 +1,10 @@
 package me.glatteis.unichat.data
 
-import me.glatteis.unichat.crawler.UniData
 import org.joda.time.LocalTime
 import java.util.*
 
-data class Room(val name: String, val id: String, val address: String, val seats: Int, val building: String, val calendar: RoomCalendar) {
+data class Room(val name: String, val id: String, val address: String, val seats: Int, val building: String,
+                val calendar: RoomCalendar) {
     fun sendable(day: Weekday, time: LocalTime): SendableRoom {
         val current = calendar.occurrences.filter {
             it.weekday == day && it.start.isBefore(time) && it.end.isAfter(time)

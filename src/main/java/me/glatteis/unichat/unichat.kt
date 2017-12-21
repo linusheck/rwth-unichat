@@ -5,7 +5,7 @@ import com.google.gson.Gson
 
 import com.google.gson.GsonBuilder
 import me.glatteis.unichat.chat.ChatRoom
-import me.glatteis.unichat.crawler.UniData
+import me.glatteis.unichat.data.UniData
 import spark.kotlin.halt
 import spark.kotlin.ignite
 /**

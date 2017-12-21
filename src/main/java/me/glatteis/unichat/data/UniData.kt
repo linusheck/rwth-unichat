@@ -1,11 +1,9 @@
-package me.glatteis.unichat.crawler
+package me.glatteis.unichat.data
 
-import com.fatboyindustrial.gsonjodatime.Converters
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
-import com.google.gson.GsonBuilder
-import me.glatteis.unichat.data.Room
-import me.glatteis.unichat.data.SendableRoom
+import me.glatteis.unichat.crawler.Crawler
+import me.glatteis.unichat.crawler.RandomStringGenerator
 import me.glatteis.unichat.gson
 import me.glatteis.unichat.now
 import java.io.File

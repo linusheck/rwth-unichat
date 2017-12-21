@@ -3,8 +3,8 @@ package me.glatteis.unichat.chat
 import me.glatteis.unichat.data.Room
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
 import org.eclipse.jetty.websocket.api.annotations.WebSocket
-import spark.Session
 import spark.Spark
+import org.eclipse.jetty.server.session.Session as JSession
 
 /**
  * Created by Linus on 21.12.2017!
@@ -21,7 +21,7 @@ class ChatRoom(val id: String, val room: Room) {
     @WebSocket
     class ChatRoomWebSocket {
         @OnWebSocketConnect
-        fun onConnect(session: Session) {
+        fun onConnect(session: JSession) {
 
         }
 
