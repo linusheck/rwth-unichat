@@ -62,11 +62,11 @@ class Crawler {
             for (element in table.allElements) {
                 if (!element.className().startsWith("blue")) continue
                 val tds = element.getElementsByTag("td")
-                if (tds[5].html() != "Hörsaal") continue
+                val seats = tds[3].html().toIntOrNull() ?: 0
+                if (tds[5].html() != "Hörsaal" && seats < 200) continue
                 val id = tds[0].html()
                 val name = if (tds[1].html().isBlank()) id else tds[1].html()
                 val address = tds[2].html()
-                val seats = tds[3].html().toIntOrNull() ?: 0
                 val timesLink = tds[7].getElementsByTag("a").attr("href")
                 val calendar = getTimes(timesLink)
                 val room = Room(name, id, address, seats, building, calendar)
@@ -92,7 +92,7 @@ class Crawler {
         for (e in calendarTable) {
             if (e.allElements.size < 2) continue
             val titleElement = e.allElements[1]
-            val title = titleElement.attr("title")
+            val title = titleElement.attr("title").split(",")[0]
             if (e.textNodes().isEmpty()) {
                 continue
             }
