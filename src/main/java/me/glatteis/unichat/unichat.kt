@@ -22,6 +22,11 @@ fun main(args: Array<String>) {
     val thisPort = portAsString.toInt()
 
     val http = ignite().port(thisPort)
+
+    http.before {
+        response.header("Access-Control-Allow-Origin", "*")
+    }
+
     // Returns a complete list of rooms
     var allAsSendableCache = Pair(UniData.allAsSendable(), System.currentTimeMillis())
     http.get("/allrooms") {
@@ -58,6 +63,7 @@ fun main(args: Array<String>) {
         val username = request.queryParams("username")
         val chatRoom = chatRooms[roomId] ?: ChatRoom(roomId, UniData.roomIds.inverse()[roomId] ?:
                 throw NullPointerException("Room should exist"))
+        request.session(true).attribute("username", username)
         type("application/json")
         gson.toJson(mapOf("socket" to chatRoom.socketUrl))
     }
