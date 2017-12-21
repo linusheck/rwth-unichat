@@ -1,5 +1,6 @@
 package me.glatteis.unichat.data
 
+import me.glatteis.unichat.crawler.UniData
 import org.joda.time.LocalTime
 import java.util.*
 
@@ -15,11 +16,12 @@ data class Room(val name: String, val id: String, val address: String, val seats
                 it.name
             }
         }
-        return SendableRoom(name, id, address, seats, building, current = toReturn)
+        return SendableRoom(name, id, address, seats, building,  toReturn, UniData.roomIds[this] ?: "")
     }
 }
 
-data class SendableRoom(val name: String, val id: String, val address: String, val seats: Int, val building: String, val current: String)
+data class SendableRoom(val name: String, val id: String, val address: String, val seats: Int, val building: String,
+                        val current: String, val chatRoomId: String)
 
 enum class Weekday {
     MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;

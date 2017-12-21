@@ -1,11 +1,15 @@
 package me.glatteis.unichat.crawler
 
 import com.fatboyindustrial.gsonjodatime.Converters
+import com.google.common.collect.BiMap
+import com.google.common.collect.HashBiMap
 import com.google.gson.GsonBuilder
 import me.glatteis.unichat.data.Room
 import me.glatteis.unichat.data.SendableRoom
+import me.glatteis.unichat.gson
 import me.glatteis.unichat.now
 import java.io.File
+import java.security.SecureRandom
 
 /**
  * Created by Linus on 19.12.2017!
@@ -13,7 +17,8 @@ import java.io.File
 object UniData {
 
     private val rooms = ArrayList<Room>()
-    private val gson = Converters.registerAll(GsonBuilder()).create()
+    val roomIds: BiMap<Room, String> = HashBiMap.create<Room, String>()
+    private val stringGenerator = RandomStringGenerator(SecureRandom())
 
     fun init() {
         val file = File("week.json")
@@ -28,21 +33,27 @@ object UniData {
         }
     }
 
-    fun crawl() {
+    private fun crawl() {
         val crawler = Crawler()
-        rooms.clear()
-        rooms.addAll(crawler.getEverything())
+        swapRooms(crawler.getEverything())
     }
 
-    fun crawlAndSave() {
+    private fun crawlAndSave() {
         crawl()
         File("week.json").writeText(asJson())
     }
 
-    fun loadFromJson() {
+    private fun loadFromJson() {
         val loadedList: Array<Room> = gson.fromJson<Array<Room>>(File("week.json").readText(), Array<Room>::class.java)
+        swapRooms(loadedList.toList())
+    }
+
+    private fun swapRooms(newList: List<Room>) {
         rooms.clear()
-        rooms.addAll(loadedList)
+        rooms.addAll(newList)
+        for (r in rooms) {
+            roomIds[r] = stringGenerator.randomString(10)
+        }
     }
 
     fun asJson(): String {

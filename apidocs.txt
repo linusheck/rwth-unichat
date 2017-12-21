@@ -1,0 +1,46 @@
+Docs
+
+GET
+/allrooms
+
+Params: none
+
+Returns: JSON Map:
+buildings:
+    array of:
+        name: <name of building>
+        rooms:
+            array of:
+                name: <name of room>
+                id: <id of room>
+                address: <address of room>
+                seats: <num seats in room>
+                building: <name of building>
+                current: <current occurrence in room>
+                chatRoomId: <id of chat room, chat room websocket location can be queried with /room/<id>>
+
+GET
+/searchrooms
+
+Params:
+    q: string query
+
+Returns: JSON Map:
+query: <your query>
+rooms:
+    array of:
+        name: <name of room>
+        id: <id of room>
+        address: <address of room>
+        seats: <num seats in room>
+        building: <name of building>
+        current: <current occurrence in room>
+        chatRoomId: <id of chat room, chat room websocket location can be queried with /room/<id>>
+
+GET
+/room/*
+Params:
+    username: Your desired username
+
+If this room exists, returns JSON Map:
+
