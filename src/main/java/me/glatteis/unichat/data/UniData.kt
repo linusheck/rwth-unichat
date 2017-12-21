@@ -59,7 +59,6 @@ object UniData {
     }
 
     fun allAsSendable(): String {
-        println(rooms)
         val (weekday, time) = now()
         val sendRooms = rooms.map {
             it.sendable(weekday, time)
@@ -86,12 +85,15 @@ object UniData {
 
     fun findRoomsInJson(query: String): String {
         val (weekday, time) = now()
-        val sublist = rooms.filter {
-            it.name.contains(query, ignoreCase = true)
+        val sublist = rooms.map {
+            it.sendable(weekday, time)
+        }.filter {
+            it.name.contains(query, ignoreCase = true) ||
+                    it.current.contains(query, ignoreCase = true) ||
+                    it.address.contains(query, ignoreCase = true) ||
+                    it.id.contains(query, ignoreCase = true)
         }.sortedByDescending {
             it.seats
-        }.map {
-            it.sendable(weekday, time)
         }
         return gson.toJson(mapOf("query" to query, "rooms" to sublist))
     }
