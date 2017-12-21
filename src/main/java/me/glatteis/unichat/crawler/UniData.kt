@@ -61,15 +61,19 @@ object UniData {
         }
 
         val buildings = HashMap<String, ArrayList<SendableRoom>>()
+        val numRooms = HashMap<String, Int>()
 
         for (r in sendRooms) {
-            if (!buildings.containsKey(r.address)) {
-                buildings[r.address] = ArrayList()
+            if (!buildings.containsKey(r.building)) {
+                buildings[r.building] = ArrayList()
             }
-            buildings[r.address]!!.add(r)
+            numRooms[r.building] = numRooms.getOrDefault(r.building, 0) + r.seats
+            buildings[r.building]!!.add(r)
         }
 
-        return gson.toJson(mapOf("buildings" to buildings))
+        val sortedBuildings = buildings.toSortedMap(Comparator { o1, o2 -> numRooms[o2]?.compareTo(numRooms[o1] ?: 0) ?: 0 })
+
+        return gson.toJson(mapOf("buildings" to sortedBuildings))
     }
 
     fun findRoomsInJson(query: String): String {

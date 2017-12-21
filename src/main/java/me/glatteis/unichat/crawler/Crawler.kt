@@ -22,28 +22,41 @@ class Crawler {
 
         // First of all, let's get the table elements with the room categories
 
-        val allLinks = ArrayList<String>()
+        val plusLinks = ArrayList<String>()
 
         for (tableElement in document.getElementsByClass("hierarchy0")) {
             val tableLinks = tableElement.getElementsByClass("link3")
-            if (tableLinks.size < 2) {
+            if (tableLinks.size < 1) {
                 continue
             }
             val tableLink = tableLinks[0]
-            if (tableLink.children().size < 3) {
+            if (tableLink.children().size < 1) {
                 continue
             }
-            val link = tableLink.child(2)
-            allLinks.add(link.attr("href"))
+            val link = tableLink.child(0)
+            plusLinks.add(link.attr("href"))
+        }
+
+        val buildingLinks = ArrayList<Pair<String, String>>()
+
+        for (l in plusLinks) {
+            val plusLinkDocument = Jsoup.connect(pageBeginning + l).get()
+            for (hierarchyLinks in plusLinkDocument.getElementsByClass("hierarchy1")) {
+                val tableLinks = hierarchyLinks.getElementsByTag("a")
+                if (tableLinks.size < 1) {
+                    continue
+                }
+                val link = tableLinks[0]
+                buildingLinks.add(Pair(link.attr("href"), link.text()))
+            }
         }
 
         // For every room in this part of the uni, get detailed info
         val rooms = ArrayList<Room>()
 
-
-        for (link in allLinks) {
+        for ((link, building) in buildingLinks) {
+            println(building)
             val subDocument = Jsoup.connect(pageBeginning + link).get()
-            println(subDocument.title())
             val table = subDocument.getElementsByClass("print")[0]
                     .getElementsByTag("tbody")[0]
             for (element in table.allElements) {
@@ -55,7 +68,7 @@ class Crawler {
                 val seats = tds[3].html().toIntOrNull() ?: 0
                 val timesLink = tds[7].getElementsByTag("a").attr("href")
                 val calendar = getTimes(timesLink)
-                val room = Room(name, id, address, seats, calendar)
+                val room = Room(name, id, address, seats, building, calendar)
                 rooms.add(room)
                 print("#")
             }
