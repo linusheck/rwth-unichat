@@ -4,6 +4,7 @@ import me.glatteis.unichat.crawler.UniData
 import spark.kotlin.halt
 import spark.kotlin.ignite
 import spark.kotlin.port
+import spark.kotlin.secure
 
 /**
  * Created by Linus on 19.12.2017!
@@ -17,9 +18,13 @@ fun main(args: Array<String>) {
 
     val http = ignite().port(thisPort)
     // Returns a complete list of rooms
+    var allAsSendableCache = Pair(UniData.allAsSendable(), System.currentTimeMillis())
     http.get("/allrooms") {
         type("application/json")
-        UniData.allAsSendable()
+        if (System.currentTimeMillis() - allAsSendableCache.second > 60000) {
+            allAsSendableCache = Pair(UniData.allAsSendable(), System.currentTimeMillis())
+        }
+        allAsSendableCache.first
     }
     // Returns a list of rooms matching a query, in descending order of number of seats available
     http.before("/searchrooms") {

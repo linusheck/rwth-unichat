@@ -72,7 +72,6 @@ object UniData {
         }
 
         val sortedBuildings = buildings.toSortedMap(Comparator { o1, o2 -> numRooms[o2]?.compareTo(numRooms[o1] ?: 0) ?: 0 })
-
         return gson.toJson(mapOf("buildings" to sortedBuildings))
     }
 

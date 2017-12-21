@@ -9,7 +9,7 @@ import org.jsoup.Jsoup
 
 class Crawler {
 
-    val pageBeginning = "http://www.campus.rwth-aachen.de/rwth/all/"
+    private val pageBeginning = "http://www.campus.rwth-aachen.de/rwth/all/"
 
     fun getEverything(): List<Room> {
         return openRoomGroupPage()

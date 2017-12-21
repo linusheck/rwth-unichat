@@ -1,7 +1,6 @@
 package me.glatteis.unichat.data
 
 import org.joda.time.LocalTime
-import java.io.Serializable
 import java.util.*
 
 data class Room(val name: String, val id: String, val address: String, val seats: Int, val building: String, val calendar: RoomCalendar) {
@@ -22,8 +21,9 @@ data class Room(val name: String, val id: String, val address: String, val seats
 
 data class SendableRoom(val name: String, val id: String, val address: String, val seats: Int, val building: String, val current: String)
 
-enum class Weekday: Serializable{
+enum class Weekday {
     MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;
+
     companion object {
         fun get(weekday: Int): Weekday {
             return Weekday.values()[weekday]
@@ -33,4 +33,4 @@ enum class Weekday: Serializable{
 
 data class Occurrence(val name: String, val start: LocalTime, val end: LocalTime, val weekday: Weekday)
 
-data class RoomCalendar(val occurrences: ArrayList<Occurrence>): Serializable
+data class RoomCalendar(val occurrences: ArrayList<Occurrence>)
