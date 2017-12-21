@@ -3,18 +3,15 @@ package me.glatteis.unichat
 import me.glatteis.unichat.crawler.UniData
 import spark.kotlin.halt
 import spark.kotlin.ignite
-import spark.kotlin.port
-import spark.kotlin.secure
 
 /**
  * Created by Linus on 19.12.2017!
  */
 
-
 fun main(args: Array<String>) {
+    UniData.init()
     val portAsString = if (args.isNotEmpty()) args[0] else "4567"
     val thisPort = portAsString.toInt()
-    UniData.init()
 
     val http = ignite().port(thisPort)
     // Returns a complete list of rooms

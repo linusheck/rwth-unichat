@@ -6,7 +6,6 @@ import me.glatteis.unichat.data.Room
 import me.glatteis.unichat.data.SendableRoom
 import me.glatteis.unichat.now
 import java.io.File
-import kotlin.concurrent.thread
 
 /**
  * Created by Linus on 19.12.2017!
@@ -17,7 +16,7 @@ object UniData {
     private val gson = Converters.registerAll(GsonBuilder()).create()
 
     fun init() {
-        val file =  File("week.json")
+        val file = File("week.json")
         if (!file.exists()) {
             println("Crawling...")
             crawlAndSave()
@@ -36,10 +35,8 @@ object UniData {
     }
 
     fun crawlAndSave() {
-        thread {
-            crawl()
-            File("week.json").writeText(asJson())
-        }
+        crawl()
+        File("week.json").writeText(asJson())
     }
 
     fun loadFromJson() {
@@ -52,7 +49,8 @@ object UniData {
         return gson.toJson(rooms.toArray())
     }
 
-    fun allAsSendable() : String {
+    fun allAsSendable(): String {
+        println(rooms)
         val (weekday, time) = now()
         val sendRooms = rooms.map {
             it.sendable(weekday, time)
@@ -72,7 +70,9 @@ object UniData {
         }
 
         val sortedBuildings = buildings.toSortedMap(Comparator { o1, o2 -> numRooms[o2]?.compareTo(numRooms[o1] ?: 0) ?: 0 })
-        return gson.toJson(mapOf("buildings" to sortedBuildings))
+        return gson.toJson(mapOf("buildings" to sortedBuildings.map {
+            mapOf("name" to it.key, "rooms" to it.value)
+        }))
     }
 
     fun findRoomsInJson(query: String): String {
