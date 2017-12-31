@@ -10,13 +10,13 @@ data class Room(val name: String, val id: String, val address: String, val seats
             it.weekday == day && it.start.isBefore(time) && it.end.isAfter(time)
         }
         val toReturn = if (current.isEmpty()) {
-            ""
+            "Keine Veranstaltung"
         } else {
             current.joinToString(", ") {
                 it.name
             }
         }
-        return SendableRoom(name, id, address, seats, building,  toReturn, UniData.roomIds[this] ?: "")
+        return SendableRoom(name, id, address, seats, building, toReturn, UniData.roomIds[this] ?: "")
     }
 }
 

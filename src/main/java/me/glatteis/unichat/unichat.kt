@@ -60,10 +60,8 @@ fun main(args: Array<String>) {
     }
     http.get("/room/*") {
         val roomId = request.splat()[0]
-        val username = request.queryParams("username")
         val chatRoom = chatRooms[roomId] ?: ChatRoom(roomId, UniData.roomIds.inverse()[roomId] ?:
                 throw NullPointerException("Room should exist"))
-        request.session(true).attribute("username", username)
         type("application/json")
         gson.toJson(mapOf("socket" to chatRoom.socketUrl))
     }

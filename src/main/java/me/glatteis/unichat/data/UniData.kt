@@ -6,8 +6,10 @@ import me.glatteis.unichat.crawler.Crawler
 import me.glatteis.unichat.crawler.RandomStringGenerator
 import me.glatteis.unichat.gson
 import me.glatteis.unichat.now
+import org.joda.time.DateTime
 import java.io.File
 import java.security.SecureRandom
+import java.util.*
 
 /**
  * Created by Linus on 19.12.2017!
@@ -15,8 +17,12 @@ import java.security.SecureRandom
 object UniData {
 
     private val rooms = ArrayList<Room>()
+    private lateinit var lastUpdate: DateTime
     val roomIds: BiMap<Room, String> = HashBiMap.create<Room, String>()
     private val stringGenerator = RandomStringGenerator(SecureRandom())
+
+    // Prevent ConcurrentModificationException without much hassle
+    var readBlock = false
 
     fun init() {
         val file = File("week.json")
@@ -26,7 +32,21 @@ object UniData {
             println("Done.")
         } else {
             println("Loading file...")
-            loadFromJson()
+            try {
+                loadFromJson()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                println("Deleting file and trying again")
+                file.delete()
+                init()
+                return
+            }
+            println("Done.")
+        }
+
+        if (lastUpdate.isAfter(DateTime.now().plusDays(1))) {
+            println("Crawling for new data...")
+            crawlAndSave()
             println("Done.")
         }
     }
@@ -39,26 +59,32 @@ object UniData {
     private fun crawlAndSave() {
         crawl()
         File("week.json").writeText(asJson())
+        lastUpdate = DateTime.now()
     }
 
     private fun loadFromJson() {
-        val loadedList: Array<Room> = gson.fromJson<Array<Room>>(File("week.json").readText(), Array<Room>::class.java)
-        swapRooms(loadedList.toList())
+        val loadedList: Data = gson.fromJson<Data>(File("week.json").readText(), Data::class.java)
+        lastUpdate = loadedList.lastUpdate
+        swapRooms(loadedList.rooms.toList())
     }
 
     private fun swapRooms(newList: List<Room>) {
+        readBlock = true
+        //todo recover rooms from old array
         rooms.clear()
         rooms.addAll(newList)
         for (r in rooms) {
             roomIds[r] = stringGenerator.randomString(10)
         }
+        readBlock = false
     }
 
-    fun asJson(): String {
-        return gson.toJson(rooms.toArray())
+    private fun asJson(): String {
+        return gson.toJson(Data(rooms.toTypedArray(), DateTime.now()))
     }
 
     fun allAsSendable(): String {
+        if (readBlock) return ""
         val (weekday, time) = now()
         val sendRooms = rooms.map {
             it.sendable(weekday, time)
@@ -84,6 +110,7 @@ object UniData {
     }
 
     fun findRoomsInJson(query: String): String {
+        if (readBlock) return ""
         val (weekday, time) = now()
         val sublist = rooms.map {
             it.sendable(weekday, time)
@@ -96,6 +123,26 @@ object UniData {
             it.seats
         }
         return gson.toJson(mapOf("query" to query, "rooms" to sublist))
+    }
+
+    private data class Data(val rooms: Array<Room>, val lastUpdate: DateTime) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Data
+
+            if (!Arrays.equals(rooms, other.rooms)) return false
+            if (lastUpdate != other.lastUpdate) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = Arrays.hashCode(rooms)
+            result = 31 * result + lastUpdate.hashCode()
+            return result
+        }
     }
 
 }
