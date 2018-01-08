@@ -10,6 +10,10 @@ import org.joda.time.DateTime
 import java.io.File
 import java.security.SecureRandom
 import java.util.*
+import kotlin.collections.HashMap
+import kotlin.concurrent.thread
+import kotlin.concurrent.timer
+import kotlin.concurrent.timerTask
 
 /**
  * Created by Linus on 19.12.2017!
@@ -44,10 +48,16 @@ object UniData {
             println("Done.")
         }
 
-        if (lastUpdate.isAfter(DateTime.now().plusDays(1))) {
-            println("Crawling for new data...")
-            crawlAndSave()
-            println("Done.")
+        timer(period = 60 * 60 * 1000L, daemon = true) {
+            println("Checking data age")
+            if (lastUpdate.isBefore(DateTime.now().minusHours(4))) {
+                println("Data is too old")
+                thread {
+                    println("Crawling for new data...")
+                    crawlAndSave()
+                    println("Done.")
+                }
+            }
         }
     }
 
@@ -70,11 +80,19 @@ object UniData {
 
     private fun swapRooms(newList: List<Room>) {
         readBlock = true
-        //todo recover rooms from old array
+        val existingChatRooms = HashMap<Room, String>()
+        for (room in newList) {
+            val sameRooms = rooms.filter {
+                it.name == room.name && it.building == room.building && it.address == room.address
+            }
+            if (sameRooms.isNotEmpty()) {
+                existingChatRooms[room] = roomIds[sameRooms[0]] ?: continue
+            }
+        }
         rooms.clear()
         rooms.addAll(newList)
         for (r in rooms) {
-            roomIds[r] = stringGenerator.randomString(10)
+            roomIds[r] = if (existingChatRooms.containsKey(r)) existingChatRooms[r] else stringGenerator.randomString(10)
         }
         readBlock = false
     }

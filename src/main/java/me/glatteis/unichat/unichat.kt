@@ -44,8 +44,8 @@ fun main(args: Array<String>) {
         }
     }
     http.get("/searchrooms") {
-        val query = request.queryParams("q")
         type("application/json")
+        val query = request.queryParams("q")
         UniData.findRoomsInJson(query)
     }
     http.before("/room/*") {
@@ -59,10 +59,16 @@ fun main(args: Array<String>) {
         }
     }
     http.get("/room/*") {
-        val roomId = request.splat()[0]
-        val chatRoom = chatRooms[roomId] ?: ChatRoom(roomId, UniData.roomIds.inverse()[roomId] ?:
-                throw NullPointerException("Room should exist"))
         type("application/json")
-        gson.toJson(mapOf("socket" to chatRoom.socketUrl))
+        val roomId = request.splat()[0]
+        if (chatRooms.containsKey(roomId)) {
+            val chatRoom = chatRooms[roomId]!!
+            gson.toJson(mapOf("socket" to chatRoom.socketUrl))
+        } else {
+            val chatRoom = chatRooms[roomId] ?: ChatRoom(roomId, UniData.roomIds.inverse()[roomId] ?:
+                    throw NullPointerException("Room should exist"))
+            chatRooms[roomId] = chatRoom
+            gson.toJson(mapOf("socket" to chatRoom.socketUrl))
+        }
     }
 }
