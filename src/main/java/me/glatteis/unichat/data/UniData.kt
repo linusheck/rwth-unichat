@@ -91,6 +91,7 @@ object UniData {
         }
         rooms.clear()
         rooms.addAll(newList)
+        roomIds.clear()
         for (r in rooms) {
             roomIds[r] = if (existingChatRooms.containsKey(r)) existingChatRooms[r] else stringGenerator.randomString(10)
         }
