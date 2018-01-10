@@ -5,6 +5,7 @@ import com.google.gson.Gson
 
 import com.google.gson.GsonBuilder
 import me.glatteis.unichat.chat.ChatRoom
+import me.glatteis.unichat.chat.ChatSocket
 import me.glatteis.unichat.data.UniData
 import spark.kotlin.halt
 import spark.kotlin.ignite
@@ -21,12 +22,13 @@ fun main(args: Array<String>) {
     val portAsString = if (args.isNotEmpty()) args[0] else "4567"
     val thisPort = portAsString.toInt()
 
+    ChatSocket.initSocket()
+
     val http = ignite().port(thisPort)
 
     http.before {
         response.header("Access-Control-Allow-Origin", "*")
     }
-
     // Returns a complete list of rooms
     var allAsSendableCache = Pair(UniData.allAsSendable(), System.currentTimeMillis())
     http.get("/allrooms") {
@@ -48,27 +50,5 @@ fun main(args: Array<String>) {
         val query = request.queryParams("q")
         UniData.findRoomsInJson(query)
     }
-    http.before("/room/*") {
-        val roomId = request.splat()
-        if (roomId.isEmpty() || roomId[0] !in UniData.roomIds.values) {
-            halt(403, "This room id does not exist")
-        }
-        val username = request.queryParams("username")
-        if (username == null || username.isBlank()) {
-            halt(403, "No username specified")
-        }
-    }
-    http.get("/room/*") {
-        type("application/json")
-        val roomId = request.splat()[0]
-        if (chatRooms.containsKey(roomId)) {
-            val chatRoom = chatRooms[roomId]!!
-            gson.toJson(mapOf("socket" to chatRoom.socketUrl))
-        } else {
-            val chatRoom = chatRooms[roomId] ?: ChatRoom(roomId, UniData.roomIds.inverse()[roomId] ?:
-                    throw NullPointerException("Room should exist"))
-            chatRooms[roomId] = chatRoom
-            gson.toJson(mapOf("socket" to chatRoom.socketUrl))
-        }
-    }
+
 }

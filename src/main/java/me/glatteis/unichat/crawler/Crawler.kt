@@ -75,7 +75,6 @@ class Crawler {
             }
             println()
         }
-        println(rooms)
         return rooms.sortedBy {
             it.name
         }
