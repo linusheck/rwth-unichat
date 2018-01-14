@@ -2,13 +2,15 @@ package me.glatteis.unichat
 
 import com.fatboyindustrial.gsonjodatime.Converters
 import com.google.gson.Gson
-
 import com.google.gson.GsonBuilder
 import me.glatteis.unichat.chat.ChatRoom
-import me.glatteis.unichat.chat.ChatSocket
+import me.glatteis.unichat.chat.ChatRoomWebSocket
 import me.glatteis.unichat.data.UniData
-import spark.kotlin.halt
+import spark.Spark.halt
 import spark.kotlin.ignite
+import kotlin.concurrent.thread
+
+
 /**
  * Created by Linus on 19.12.2017!
  */
@@ -17,12 +19,32 @@ val chatRooms = HashMap<String, ChatRoom>()
 
 val gson: Gson = Converters.registerAll(GsonBuilder()).create()
 
+fun <A, B> Gson.jsonMap(vararg pairs: Pair<A, B>): String {
+    return toJson(pairs.toMap())
+}
+
+lateinit var chatSocket: ChatRoomWebSocket
+
 fun main(args: Array<String>) {
     UniData.init()
+
     val portAsString = if (args.isNotEmpty()) args[0] else "4567"
     val thisPort = portAsString.toInt()
 
-    ChatSocket.initSocket()
+    thread {
+        do {
+            var ok = true
+            try {
+                chatSocket = ChatRoomWebSocket(thisPort + 1)
+                chatSocket.start()
+            } catch (e: NullPointerException) {
+                println(e.message)
+                ok = false
+            }
+        } while (!ok)
+
+    }
+
 
     val http = ignite().port(thisPort)
 
@@ -50,5 +72,10 @@ fun main(args: Array<String>) {
         val query = request.queryParams("q")
         UniData.findRoomsInJson(query)
     }
+
+    Runtime.getRuntime().addShutdownHook(Thread {
+        println("Stopping websocket...")
+        chatSocket.stop()
+    })
 
 }

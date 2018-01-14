@@ -2,6 +2,8 @@ package me.glatteis.unichat.data
 
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
+import me.glatteis.unichat.chat.ChatRoom
+import me.glatteis.unichat.chatRooms
 import me.glatteis.unichat.crawler.Crawler
 import me.glatteis.unichat.crawler.RandomStringGenerator
 import me.glatteis.unichat.gson
@@ -13,7 +15,6 @@ import java.util.*
 import kotlin.collections.HashMap
 import kotlin.concurrent.thread
 import kotlin.concurrent.timer
-import kotlin.concurrent.timerTask
 
 /**
  * Created by Linus on 19.12.2017!
@@ -53,9 +54,13 @@ object UniData {
             if (lastUpdate.isBefore(DateTime.now().minusHours(4))) {
                 println("Data is too old")
                 thread {
-                    println("Crawling for new data...")
-                    crawlAndSave()
-                    println("Done.")
+                    try {
+                        println("Crawling for new data...")
+                        crawlAndSave()
+                        println("Done.")
+                    } catch (e: Exception) {
+                        println("Failed: $e")
+                    }
                 }
             }
         }
@@ -94,6 +99,11 @@ object UniData {
         roomIds.clear()
         for (r in rooms) {
             roomIds[r] = if (existingChatRooms.containsKey(r)) existingChatRooms[r] else stringGenerator.randomString(10)
+        }
+        for ((room, id) in roomIds) {
+            if (!chatRooms.containsKey(id)) {
+                chatRooms[id] = ChatRoom(id, room)
+            }
         }
         readBlock = false
     }
