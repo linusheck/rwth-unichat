@@ -19,6 +19,8 @@ val chatRooms = HashMap<String, ChatRoom>()
 
 val gson: Gson = Converters.registerAll(GsonBuilder()).create()
 
+val websocketPort = 7070
+
 fun <A, B> Gson.jsonMap(vararg pairs: Pair<A, B>): String {
     return toJson(pairs.toMap())
 }
@@ -35,7 +37,7 @@ fun main(args: Array<String>) {
         do {
             var ok = true
             try {
-                chatSocket = ChatRoomWebSocket(thisPort + 1)
+                chatSocket = ChatRoomWebSocket(websocketPort)
                 chatSocket.start()
             } catch (e: NullPointerException) {
                 println(e.message)

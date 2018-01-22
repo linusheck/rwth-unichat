@@ -12,8 +12,6 @@ import java.net.InetSocketAddress
 
 class ChatRoomWebSocket(port: Int) : WebSocketServer(InetSocketAddress(port)) {
 
-
-
     private val socketsToRooms = HashMap<WebSocket, User>()
 
     override fun onOpen(connection: WebSocket, handshake: ClientHandshake) {
@@ -29,6 +27,7 @@ class ChatRoomWebSocket(port: Int) : WebSocketServer(InetSocketAddress(port)) {
         val jsonParser = JsonParser()
         val message = jsonParser.parse(messageAsString).asJsonObject
         if (message["type"].asString == "login") {
+            // If we are trying to login, login
             val roomString = message.get("room").asString
             val username = message.get("username").asString
             val chatRoom = chatRooms[roomString]
@@ -43,6 +42,7 @@ class ChatRoomWebSocket(port: Int) : WebSocketServer(InetSocketAddress(port)) {
                 chatRoom.onMessage(message, user)
             }
         } else {
+            // Else our room should already exist. Send that message to the room
             val user = socketsToRooms[socket]
             if (user == null) {
                 socket.send(gson.jsonMap(
