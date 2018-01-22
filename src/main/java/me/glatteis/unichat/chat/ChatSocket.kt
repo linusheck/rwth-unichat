@@ -4,25 +4,27 @@ import com.google.gson.JsonParser
 import me.glatteis.unichat.chatRooms
 import me.glatteis.unichat.gson
 import me.glatteis.unichat.jsonMap
-import org.java_websocket.WebSocket
-import org.java_websocket.handshake.ClientHandshake
-import org.java_websocket.server.WebSocketServer
-import java.lang.Exception
-import java.net.InetSocketAddress
+import org.eclipse.jetty.websocket.api.Session
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
+import org.eclipse.jetty.websocket.api.annotations.WebSocket
 
-class ChatRoomWebSocket(port: Int) : WebSocketServer(InetSocketAddress(port)) {
+@WebSocket
+object ChatSocket {
 
-    private val socketsToRooms = HashMap<WebSocket, User>()
+    private val socketsToRooms = HashMap<Session, User>()
 
-    override fun onOpen(connection: WebSocket, handshake: ClientHandshake) {
+    @OnWebSocketConnect
+    fun connected(session: Session) = println("session connected")
 
+    @OnWebSocketClose
+    fun closed(session: Session, statusCode: Int, reason: String?) {
+        socketsToRooms.remove(session)
     }
 
-    override fun onClose(connection: WebSocket, code: Int, reason: String?, remote: Boolean) {
-        socketsToRooms.remove(connection)
-    }
-
-    override fun onMessage(socket: WebSocket, messageAsString: String) {
+    @OnWebSocketMessage
+    fun message(session: Session, messageAsString: String) {
         println(messageAsString)
         val jsonParser = JsonParser()
         val message = jsonParser.parse(messageAsString).asJsonObject
@@ -32,20 +34,20 @@ class ChatRoomWebSocket(port: Int) : WebSocketServer(InetSocketAddress(port)) {
             val username = message.get("username").asString
             val chatRoom = chatRooms[roomString]
             if (chatRoom == null) {
-                socket.send(gson.jsonMap(
+                session.remote.sendString(gson.jsonMap(
                         "type" to "error",
                         "reason" to "room_does_not_exist"
                 ))
             } else {
-                val user = User(chatRoom, username, socket)
-                socketsToRooms[socket] = user
+                val user = User(chatRoom, username, session)
+                socketsToRooms[session] = user
                 chatRoom.onMessage(message, user)
             }
         } else {
             // Else our room should already exist. Send that message to the room
-            val user = socketsToRooms[socket]
+            val user = socketsToRooms[session]
             if (user == null) {
-                socket.send(gson.jsonMap(
+                session.remote.sendString(gson.jsonMap(
                         "type" to "error",
                         "reason" to "you_are_not_logged_in"
                 ))
@@ -53,13 +55,5 @@ class ChatRoomWebSocket(port: Int) : WebSocketServer(InetSocketAddress(port)) {
             }
             user.room.onMessage(message, user)
         }
-
     }
-
-    override fun onStart() {
-    }
-
-    override fun onError(p0: WebSocket?, p1: Exception?) {
-    }
-
 }
