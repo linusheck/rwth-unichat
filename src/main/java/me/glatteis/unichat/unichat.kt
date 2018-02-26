@@ -8,7 +8,6 @@ import me.glatteis.unichat.chat.ChatSocket
 import me.glatteis.unichat.data.UniData
 import spark.Filter
 import spark.Spark.*
-import kotlin.concurrent.thread
 
 
 /**
@@ -17,10 +16,7 @@ import kotlin.concurrent.thread
 
 val chatRooms = HashMap<String, ChatRoom>()
 val gson: Gson = Converters.registerAll(GsonBuilder()).create()
-
-fun <A, B> Gson.jsonMap(vararg pairs: Pair<A, B>): String {
-    return toJson(pairs.toMap())
-}
+const val DO_NOT_UPDATE = true
 
 fun main(args: Array<String>) {
     UniData.init()

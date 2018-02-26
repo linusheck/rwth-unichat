@@ -12,7 +12,7 @@ import java.util.*
 
 private val timeZone = DateTimeZone.forTimeZone(TimeZone.getTimeZone("Europe/Berlin"))
 
-fun now() : Pair<Weekday, LocalTime> {
+fun now(): Pair<Weekday, LocalTime> {
     val time = LocalTime.now(timeZone)
     val weekday = Weekday.get((DateTime.now(timeZone).dayOfWeek().get() - 1) % 7)
     return Pair(weekday, time)

@@ -15,7 +15,7 @@ class Crawler {
         return openRoomGroupPage()
     }
 
-    private fun openRoomGroupPage() : List<Room> {
+    private fun openRoomGroupPage(): List<Room> {
         val pageName = pageBeginning + "roomGroups.asp"
         val document = Jsoup.connect(pageName).get()
         println(document.title())

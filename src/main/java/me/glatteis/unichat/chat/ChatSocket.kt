@@ -29,19 +29,25 @@ object ChatSocket {
         val jsonParser = JsonParser()
         val message = jsonParser.parse(messageAsString).asJsonObject
         if (message["type"].asString == "login") {
-            // If we are trying to login, login
-            val roomString = message.get("room").asString
-            val username = message.get("username").asString
+            // If user is trying to login, login
+            val roomString = message.get("room")?.asString
+            val username = message.get("username")?.asString
             val chatRoom = chatRooms[roomString]
-            if (chatRoom == null) {
-                session.remote.sendString(gson.jsonMap(
+            when {
+                chatRoom == null -> session.remote.sendString(gson.jsonMap(
                         "type" to "error",
-                        "reason" to "room_does_not_exist"
+                        "reason" to "This room does not exist"
                 ))
-            } else {
-                val user = User(chatRoom, username, session)
-                socketsToRooms[session] = user
-                chatRoom.onMessage(message, user)
+                username == null -> session.remote.sendString(gson.jsonMap(
+                        "type" to "error",
+                        "reason" to "You have not specified a username"
+                ))
+                else -> {
+                    val user = User(chatRoom, username, session)
+                    socketsToRooms[session] = user
+                    chatRoom.onlineUsers.add(user)
+                    chatRoom.onMessage(message, user)
+                }
             }
         } else {
             // Else our room should already exist. Send that message to the room

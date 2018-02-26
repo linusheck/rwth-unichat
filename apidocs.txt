@@ -37,10 +37,5 @@ rooms:
         current: <current occurrence in room>
         chatRoomId: <id of chat room, chat room websocket location can be queried with /room/<id>>
 
-GET
-/room/*
-Params:
-    username: Your desired username
-
-If this room exists, returns JSON Map:
+WEBSOCKET
 
