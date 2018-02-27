@@ -13,6 +13,7 @@ import org.joda.time.DateTime
 import java.io.File
 import java.security.SecureRandom
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.concurrent.thread
 import kotlin.concurrent.timer
@@ -34,6 +35,7 @@ object UniData {
     fun init() {
         // Load the file with data
         val file = File("week.json")
+        println(file.exists())
         if (!file.exists()) {
             println("Crawling...")
             crawlAndSave()
@@ -72,7 +74,9 @@ object UniData {
     // Crawl for new data and set that as the current data
     private fun crawl() {
         val crawler = Crawler()
-        swapRooms(crawler.getEverything())
+        val rooms = crawler.getEverything() + Room("Unichat Chat", "general", "",
+                Int.MAX_VALUE, "General", RoomCalendar(ArrayList()))
+        swapRooms(rooms)
     }
 
     // Crawl for new data, set that as the current data, save it in the file week.json

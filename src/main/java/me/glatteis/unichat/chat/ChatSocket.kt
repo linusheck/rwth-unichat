@@ -16,7 +16,9 @@ object ChatSocket {
     private val socketsToRooms = HashMap<Session, User>()
 
     @OnWebSocketConnect
-    fun connected(session: Session) = println("session connected")
+    fun connected(session: Session) {
+
+    }
 
     @OnWebSocketClose
     fun closed(session: Session, statusCode: Int, reason: String?) {
