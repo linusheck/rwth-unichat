@@ -36,22 +36,30 @@ class ChatRoom(val id: String, val room: Room) {
         }
     }
 
+    fun onLogin(user: User) {
+        println(onlineUsers)
+        for (u in onlineUsers) {
+            if (u.publicId == user.publicId) {
+                return // This user is logging back in after an unexpected web socket close. Do not send alert
+            }
+        }
+        sendToAll(gson.jsonMap(
+                "type" to "info-login",
+                "username" to user.username,
+                "user-id" to user.publicId
+        ))
+        println("${user.username} connected to room ${room.id}")
+    }
+
     // Gets called by the ChatSocket when a WebSocket messages comes in
     fun onMessage(message: JsonObject, user: User) {
         when (message.get("type").asString) {
-            "login" -> {
-                val username = message.get("username").asString
-                sendToAll(gson.jsonMap(
-                        "type" to "info-login",
-                        "username" to username
-                ))
-                println("$username connected to room ${room.id}")
-            }
             "message" -> {
-                print(user.username + ": " + message.get("message"))
+                if (!message.has("message")) return
                 sendToAll(gson.jsonMap(
                         "type" to "message",
                         "username" to user.username,
+                        "user-id" to user.publicId,
                         "message" to message.get("message"),
                         "time" to now().second.millisOfDay
                 ))

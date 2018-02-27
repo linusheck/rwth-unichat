@@ -40,7 +40,7 @@ rooms:
 WEBSOCKET
 
 
-    Websocket URL: Exactly the same as HTTP URL, same port
+    Websocket URL: wss://<url>/chatsocket
 WebSocket messages format is JSON
 
 WebSocket messages are tables, they always contain a parameter "type" to distinguish the message type
@@ -58,7 +58,7 @@ Send when you want to login to a room.
     Params
 
 "room": # ID of the room that you're trying to login to (you should get that from the /allrooms or /searchrooms query (String)
-"user_id_secret": # TODO: YOUR STATIC USER ID SECRET FOR FRIEND SYSTEM
+"user-id-secret": # TODO: YOUR STATIC USER ID SECRET FOR FRIEND SYSTEM
 "username": # Your desired username (String)
 
     Example
@@ -66,6 +66,7 @@ Send when you want to login to a room.
     "type": "login",
     "room": "abc123",
     "username": "Supergrobi"
+    "user-id-secret": <your secret string>
 }
 
     CHAT MESSAGE
@@ -102,7 +103,7 @@ Sent when someone wrote something.
     Params
 
 "username": # Username of the author
-"user-id" // TODO: STATIC USER ID OF THE AUTHOR FOR FRIEND SYSTEM
+"user-id" # Static user ID of author
 "message": # The message (String)
 "time": # The time (in millis of day) of the message
 // TODO Maybe images or stickers?
@@ -117,7 +118,7 @@ Sent when someone logged into your room
     Params
 
 "username": # Username of the person that logged in
-"user-id" // TODO: STATIC USER ID OF THIS PERSON FOR FRIEND SYSTEM
+"user-id" // # Static user id of this person
 
 
     LOGOUT INFO MESSAGE
@@ -129,6 +130,6 @@ Sent when someone logged out of your room
     Params
 
 "username": # Username of the person that logged out
-"user-id" // TODO: STATIC USER ID OF THIS PERSON FOR FRIEND SYSTEM
+"user-id" # Static user id of this person
 
 

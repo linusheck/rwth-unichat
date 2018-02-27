@@ -46,13 +46,21 @@ object ChatSocket {
                         "reason" to "You have not specified a username"
                 ))
                 else -> {
-                    val user = User(chatRoom, username, session)
+
+                    // If the user desires to have an identity, search for their identity or create a new one
+                    val publicKey = if (message.has("user-id-secret")) {
+                        UserDatabase.getPublicId(message["user-id-secret"].asString)
+                    } else {
+                        "anonymous:$username"
+                    }
+
+                    val user = User(chatRoom, username, publicKey, session)
                     // Add user to lookup table
                     socketsToRooms[session] = user
+                    // Tell the ChatRoom that someone has logged in
+                    chatRoom.onLogin(user)
                     // Add user to ChatRoom online user list
                     chatRoom.onlineUsers.add(user)
-                    // Tell the ChatRoom that someone has logged in
-                    chatRoom.onMessage(message, user)
                 }
             }
         } else {
