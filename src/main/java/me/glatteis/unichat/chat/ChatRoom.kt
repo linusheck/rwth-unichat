@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import me.glatteis.unichat.data.Room
 import me.glatteis.unichat.gson
 import me.glatteis.unichat.jsonMap
+import me.glatteis.unichat.now
 
 /**
  * Created by Linus on 21.12.2017!
@@ -50,7 +51,8 @@ class ChatRoom(val id: String, val room: Room) {
                 sendToAll(gson.jsonMap(
                         "type" to "message",
                         "username" to user.username,
-                        "message" to message.get("message")
+                        "message" to message.get("message"),
+                        "time" to now().second.millisOfDay
                 ))
             }
         }

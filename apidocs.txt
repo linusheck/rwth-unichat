@@ -104,6 +104,7 @@ Sent when someone wrote something.
 "username": # Username of the author
 "user-id" // TODO: STATIC USER ID OF THE AUTHOR FOR FRIEND SYSTEM
 "message": # The message (String)
+"time": # The time (in millis of day) of the message
 // TODO Maybe images or stickers?
 
 
