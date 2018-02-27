@@ -27,6 +27,11 @@ object ChatSocket {
         socketsToRooms.remove(session)
     }
 
+    private fun Session.error(reason: String) = remote.sendString(gson.jsonMap(
+            "type" to "error",
+            "reason" to reason
+    ))
+
     @OnWebSocketMessage
     fun message(session: Session, messageAsString: String) {
         val jsonParser = JsonParser()
@@ -37,40 +42,38 @@ object ChatSocket {
             val username = message.get("username")?.asString
             val chatRoom = chatRooms[roomString]
             when {
-                chatRoom == null -> session.remote.sendString(gson.jsonMap(
-                        "type" to "error",
-                        "reason" to "This room does not exist"
-                ))
-                username == null -> session.remote.sendString(gson.jsonMap(
-                        "type" to "error",
-                        "reason" to "You have not specified a username"
-                ))
+                chatRoom == null -> session.error("This room does not exist")
+                username == null -> session.error("You have not specified a username")
+                username.length > 32 -> session.error("Your username is too long (sorry)")
                 else -> {
-
                     // If the user desires to have an identity, search for their identity or create a new one
-                    val publicKey = if (message.has("user-id-secret")) {
+                    val publicId = if (message.has("user-id-secret")) {
                         UserDatabase.getPublicId(message["user-id-secret"].asString)
                     } else {
                         "anonymous:$username"
                     }
+                    chatRoom.removeClosed()
+                    chatRoom.onlineUsers.forEach {
+                        if (it.publicId == publicId) {
+                            session.error("A user with your ID is already logged in")
+                            return
+                        }
+                    }
 
-                    val user = User(chatRoom, username, publicKey, session)
+                    val user = User(chatRoom, username, publicId, session)
                     // Add user to lookup table
                     socketsToRooms[session] = user
-                    // Tell the ChatRoom that someone has logged in
-                    chatRoom.onLogin(user)
                     // Add user to ChatRoom online user list
                     chatRoom.onlineUsers.add(user)
+                    // Tell the ChatRoom that someone has logged in
+                    chatRoom.onLogin(user)
                 }
             }
         } else {
             // Else our user should already exist and wants to send a message to their room
             val user = socketsToRooms[session]
             if (user == null) {
-                session.remote.sendString(gson.jsonMap(
-                        "type" to "error",
-                        "reason" to "You are not logged in"
-                ))
+                session.error("You are not logged in")
                 return
             }
             user.room.onMessage(message, user)

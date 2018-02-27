@@ -5,40 +5,62 @@ import me.glatteis.unichat.data.Room
 import me.glatteis.unichat.gson
 import me.glatteis.unichat.jsonMap
 import me.glatteis.unichat.now
+import org.eclipse.jetty.util.ConcurrentHashSet
+import java.util.*
+import kotlin.concurrent.schedule
 
 /**
  * Created by Linus on 21.12.2017!
  */
 class ChatRoom(val id: String, val room: Room) {
 
-    val onlineUsers = HashSet<User>()
+    // Users that have logged out in the past 5 seconds
+    private val bufferUsers = ConcurrentHashSet<User>()
+    val onlineUsers = ConcurrentHashSet<User>()
 
     // Removes online users that have closed the connection
-    fun HashSet<User>.removeClosed(): HashSet<User> {
-        this.retainAll {
+    fun removeClosed() {
+        onlineUsers.retainAll {
             it.isOpen()
         }
-        return this
     }
 
-    // Called by the ChatSocket when someone logs out
+    /**
+     * Called by the ChatSocket when someone logs out
+      */
+
     fun onLogout(user: User) {
-        sendToAll(gson.jsonMap(
-                "type" to "info-logout",
-                "username" to user.username
-        ))
+        // Add this user to buffer users. If the users logs back in within 5 seconds,
+        // We will not treat them as logged out.
+        bufferUsers.add(user)
+        Timer().schedule(5000) {
+            removeClosed()
+            bufferUsers.remove(user)
+            onlineUsers.forEach {
+                if (it.publicId == user.publicId) {
+                    return@schedule
+                }
+            }
+            sendToAll(gson.jsonMap(
+                    "type" to "info-logout",
+                    "username" to user.username
+            ))
+        }
     }
 
     // Send a message to all users in this room
     fun sendToAll(message: String) {
-        for (u in onlineUsers.removeClosed()) {
+        removeClosed()
+        for (u in onlineUsers) {
             u.webSocket.remote.sendString(message)
         }
     }
 
+    /**
+     * Called by ChatSocket when a user logs in, before they are added to onlineUsers
+     */
     fun onLogin(user: User) {
-        println(onlineUsers)
-        for (u in onlineUsers) {
+        for (u in bufferUsers) {
             if (u.publicId == user.publicId) {
                 return // This user is logging back in after an unexpected web socket close. Do not send alert
             }
@@ -48,7 +70,6 @@ class ChatRoom(val id: String, val room: Room) {
                 "username" to user.username,
                 "user-id" to user.publicId
         ))
-        println("${user.username} connected to room ${room.id}")
     }
 
     // Gets called by the ChatSocket when a WebSocket messages comes in
