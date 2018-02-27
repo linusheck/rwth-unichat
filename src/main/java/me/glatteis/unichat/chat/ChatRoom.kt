@@ -48,6 +48,7 @@ class ChatRoom(val id: String, val room: Room) {
                 println("$username connected to room ${room.id}")
             }
             "message" -> {
+                print(user.username + ": " + message.get("message"))
                 sendToAll(gson.jsonMap(
                         "type" to "message",
                         "username" to user.username,
