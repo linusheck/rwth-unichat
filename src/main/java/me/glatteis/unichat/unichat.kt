@@ -16,7 +16,7 @@ import spark.Spark.*
 
 val chatRooms = HashMap<String, ChatRoom>()
 val gson: Gson = Converters.registerAll(GsonBuilder()).create()
-const val DO_NOT_UPDATE = true
+const val DO_NOT_UPDATE = false
 
 fun main(args: Array<String>) {
     UniData.init()

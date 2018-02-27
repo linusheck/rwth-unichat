@@ -20,21 +20,31 @@ class ChatRoom(val id: String, val room: Room) {
         return this
     }
 
+    // Called by the ChatSocket when someone logs out
+    fun onLogout(user: User) {
+        sendToAll(gson.jsonMap(
+                "type" to "info-logout",
+                "username" to user.username
+        ))
+    }
+
+    // Send a message to all users in this room
     fun sendToAll(message: String) {
         for (u in onlineUsers.removeClosed()) {
             u.webSocket.remote.sendString(message)
         }
     }
 
+    // Gets called by the ChatSocket when a WebSocket messages comes in
     fun onMessage(message: JsonObject, user: User) {
         when (message.get("type").asString) {
             "login" -> {
-                val nickname = message.get("username").asString
+                val username = message.get("username").asString
                 sendToAll(gson.jsonMap(
-                        "type" to "login-info",
-                        "user" to nickname
+                        "type" to "info-login",
+                        "username" to username
                 ))
-                println("$nickname connected to room ${room.id}")
+                println("$username connected to room ${room.id}")
             }
             "message" -> {
                 sendToAll(gson.jsonMap(

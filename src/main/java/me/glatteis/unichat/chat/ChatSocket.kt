@@ -20,16 +20,19 @@ object ChatSocket {
 
     @OnWebSocketClose
     fun closed(session: Session, statusCode: Int, reason: String?) {
+        // If the user exists, tell the room that they have left
+        val user = socketsToRooms[session] ?: return
+        user.room.onLogout(user)
+        // Remove the users from the socket to room lookup table
         socketsToRooms.remove(session)
     }
 
     @OnWebSocketMessage
     fun message(session: Session, messageAsString: String) {
-        println(messageAsString)
         val jsonParser = JsonParser()
         val message = jsonParser.parse(messageAsString).asJsonObject
         if (message["type"].asString == "login") {
-            // If user is trying to login, login
+            // The user is trying to login
             val roomString = message.get("room")?.asString
             val username = message.get("username")?.asString
             val chatRoom = chatRooms[roomString]
@@ -44,18 +47,21 @@ object ChatSocket {
                 ))
                 else -> {
                     val user = User(chatRoom, username, session)
+                    // Add user to lookup table
                     socketsToRooms[session] = user
+                    // Add user to ChatRoom online user list
                     chatRoom.onlineUsers.add(user)
+                    // Tell the ChatRoom that someone has logged in
                     chatRoom.onMessage(message, user)
                 }
             }
         } else {
-            // Else our room should already exist. Send that message to the room
+            // Else our user should already exist and wants to send a message to their room
             val user = socketsToRooms[session]
             if (user == null) {
                 session.remote.sendString(gson.jsonMap(
                         "type" to "error",
-                        "reason" to "you_are_not_logged_in"
+                        "reason" to "You are not logged in"
                 ))
                 return
             }
