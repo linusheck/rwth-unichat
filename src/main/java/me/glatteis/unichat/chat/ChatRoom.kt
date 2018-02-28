@@ -101,7 +101,7 @@ class ChatRoom(val id: String, val room: Room) {
                 val splitImage = image.split(",")
                 if (splitImage.size == 1 ||
                         Regex("data:image/*\\([a-zA-Z]+\\) *(.+);base64").matches(splitImage[0])) {
-                    user.webSocket.error("The provided image is not a valid base64 image")
+                    user.webSocket.error("The provided image is not a valid base64 image (not correct format)")
                     return
                 }
                 val bufferedImage: BufferedImage
@@ -109,7 +109,7 @@ class ChatRoom(val id: String, val room: Room) {
                     bufferedImage = base64StringToImg(splitImage[1])
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    user.webSocket.error("The provided image is not a valid base64 image")
+                    user.webSocket.error("The provided image is not a valid base64 image (couldn't convert to img)")
                     return
                 }
                 val base64String: String
@@ -117,7 +117,7 @@ class ChatRoom(val id: String, val room: Room) {
                     base64String = splitImage[0] + "," + imgToBase64String(bufferedImage, "png")
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    user.webSocket.error("The provided image is not a valid base64 image")
+                    user.webSocket.error("The provided image is not a valid base64 image (couldn't convert back to base64)")
                     return
                 }
 
