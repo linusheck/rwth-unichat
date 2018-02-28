@@ -34,13 +34,9 @@ fun main(args: Array<String>) {
 
 
     // Returns a complete list of rooms
-    var allAsSendableCache = Pair(UniData.allAsSendable(), System.currentTimeMillis())
     get("/allrooms") { _, response ->
         response.type("application/json")
-        if (System.currentTimeMillis() - allAsSendableCache.second > 60000) {
-            allAsSendableCache = Pair(UniData.allAsSendable(), System.currentTimeMillis())
-        }
-        allAsSendableCache.first
+        UniData.allAsSendable()
     }
     // Returns a list of rooms matching a query, in descending order of number of seats available
     before("/searchrooms") { request, _ ->

@@ -2,8 +2,7 @@ package me.glatteis.unichat.chat
 
 import com.google.gson.JsonParser
 import me.glatteis.unichat.chatRooms
-import me.glatteis.unichat.gson
-import me.glatteis.unichat.jsonMap
+import me.glatteis.unichat.error
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
@@ -29,11 +28,6 @@ object ChatSocket {
         socketsToRooms.remove(session)
     }
 
-    private fun Session.error(reason: String) = remote.sendString(gson.jsonMap(
-            "type" to "error",
-            "reason" to reason
-    ))
-
     @OnWebSocketMessage
     fun message(session: Session, messageAsString: String) {
         val jsonParser = JsonParser()
@@ -46,7 +40,7 @@ object ChatSocket {
             when {
                 chatRoom == null -> session.error("This room does not exist")
                 username == null -> session.error("You have not specified a username")
-                username.length > 32 -> session.error("Your username is too long (sorry)")
+                username.length > 32 -> session.error("Your username is too long")
                 else -> {
                     // If the user desires to have an identity, search for their identity or create a new one
                     val publicId = if (message.has("user-id-secret")) {
@@ -55,11 +49,9 @@ object ChatSocket {
                         "anonymous:$username"
                     }
                     chatRoom.removeClosed()
-                    chatRoom.onlineUsers.forEach {
-                        if (it.publicId == publicId) {
-                            session.error("A user with your ID is already logged in")
-                            return
-                        }
+                    if (chatRoom.onlineUsers.any { it.publicId == publicId || it.username == username }) {
+                        session.error("A user with your ID or your nickname is already logged in")
+                        return
                     }
 
                     val user = User(chatRoom, username, publicId, session)

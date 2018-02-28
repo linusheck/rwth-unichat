@@ -131,9 +131,7 @@ object UniData {
         val (weekday, time) = now()
         val sendRooms = rooms.map {
             it.sendable(weekday, time)
-        }.sortedByDescending {
-                    it.seats
-                }
+        }.sortedByDescending { it.seats }
 
         val buildings = HashMap<String, ArrayList<SendableRoom>>()
         val numRooms = HashMap<String, Int>()
