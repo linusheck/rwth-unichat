@@ -98,6 +98,7 @@ class ChatRoom(val id: String, val room: Room) {
                     return
                 }
                 val image = message.get("image").asString
+                println(image)
                 val splitImage = image.split(",")
                 if (splitImage.size == 1 ||
                         Regex("data:image/*\\([a-zA-Z]+\\) *(.+);base64").matches(splitImage[0])) {
