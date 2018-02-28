@@ -84,6 +84,7 @@ object UniData {
         crawl()
         File("week.json").writeText(asJson())
         lastUpdate = DateTime.now()
+        assert(File("week.json").readText() == asJson())
     }
 
     // Load week.json file and set it as current data
