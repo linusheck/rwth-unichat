@@ -18,6 +18,7 @@ buildings:
                 building: <name of building>
                 current: <current occurrence in room>
                 chatRoomId: <id of chat room, chat room websocket location can be queried with /room/<id>>
+                onlineUsers: <num of users in the room>
 
 GET
 /searchrooms
@@ -36,6 +37,7 @@ rooms:
         building: <name of building>
         current: <current occurrence in room>
         chatRoomId: <id of chat room, chat room websocket location can be queried with /room/<id>>
+        onlineUsers: <num of users in the room>
 
 WEBSOCKET
 
@@ -78,7 +80,17 @@ Send when you are logged in to a room, and want to send a text message.
     Params
 
 "message": # The message you want to send (String)
-// TODO Maybe images or stickers?
+
+    IMAGE MESSAGE
+
+Send when you are logged in to a room, and want to send a text message.
+
+"type": "image"
+
+    Params
+
+"image": # The image you want to send (Base64)
+
 
 MESSAGES THAT CAN BE SENT TO YOU
 
@@ -106,8 +118,19 @@ Sent when someone wrote something.
 "user-id" # Static user ID of author
 "message": # The message (String)
 "time": # The time (in millis of day) of the message
-// TODO Maybe images or stickers?
 
+    IMAGE MESSAGE
+
+"type": "image"
+
+Sent when someone sent an image.
+
+    Params
+
+"username": # Username of the author
+"user-id" # Static user ID of author
+"image": # The image (Base64 encoding, JPG or PNG)
+"time": # The time (in millis of day) of the message
 
     LOGIN INFO MESSAGE
 
