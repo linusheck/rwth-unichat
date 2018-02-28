@@ -7,7 +7,6 @@ import me.glatteis.unichat.gson
 import me.glatteis.unichat.jsonMap
 import me.glatteis.unichat.now
 import org.eclipse.jetty.util.ConcurrentHashSet
-import java.awt.Image
 import java.awt.image.BufferedImage
 import java.awt.image.RenderedImage
 import java.io.ByteArrayInputStream
@@ -16,7 +15,6 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import javax.imageio.ImageIO
 import kotlin.concurrent.schedule
-import kotlin.math.sqrt
 
 
 /**
@@ -101,8 +99,9 @@ class ChatRoom(val id: String, val room: Room) {
                 }
                 val image = message.get("image").asString
                 val splitImage = image.split(",")
-                if (splitImage.size == 1) {
-                    user.webSocket.error("The provided image is not a valid base64 image (missing comma)")
+                if (splitImage.size == 1 ||
+                        Regex("data:image/*\\([a-zA-Z]+\\) *(.+);base64").matches(splitImage[0])) {
+                    user.webSocket.error("The provided image is not a valid base64 image")
                     return
                 }
                 val bufferedImage: BufferedImage
@@ -113,27 +112,9 @@ class ChatRoom(val id: String, val room: Room) {
                     user.webSocket.error("The provided image is not a valid base64 image")
                     return
                 }
-                // If the image is bigger than N pixels, scale it down to N pixels
-                val maxSize = 1_000_000
-                val imageToSend = if (bufferedImage.width * bufferedImage.height > maxSize) {
-                    val scaleFactor = sqrt(maxSize / (bufferedImage.width * bufferedImage.height).toDouble())
-                    bufferedImage.getScaledInstance(
-                            (bufferedImage.width * scaleFactor).toInt(),
-                            (bufferedImage.height * scaleFactor).toInt(),
-                            Image.SCALE_DEFAULT
-                    )
-                    val newImage = BufferedImage(bufferedImage.width, bufferedImage.height, BufferedImage.TYPE_INT_ARGB)
-                    val g = newImage.graphics
-                    g.drawImage(bufferedImage, 0, 0, null)
-                    g.dispose()
-                    newImage
-                } else {
-                    bufferedImage
-                }
-
                 val base64String: String
                 try {
-                    base64String = splitImage[0] + "," + imgToBase64String(imageToSend, "png")
+                    base64String = splitImage[0] + "," + imgToBase64String(bufferedImage, "png")
                 } catch (e: Exception) {
                     e.printStackTrace()
                     user.webSocket.error("The provided image is not a valid base64 image")
