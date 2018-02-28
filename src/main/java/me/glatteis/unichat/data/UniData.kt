@@ -162,6 +162,7 @@ object UniData {
                     it.name.contains(query, ignoreCase = true) ||
                             it.current.contains(query, ignoreCase = true) ||
                             it.address.contains(query, ignoreCase = true) ||
+                            it.building.contains(query, ignoreCase = true) ||
                             it.id.contains(query, ignoreCase = true)
                 }.sortedByDescending {
                     it.seats
