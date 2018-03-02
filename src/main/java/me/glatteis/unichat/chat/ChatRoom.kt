@@ -13,7 +13,9 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import javax.imageio.ImageIO
+import javax.swing.JScrollBar
 import kotlin.concurrent.schedule
 
 
@@ -24,7 +26,11 @@ class ChatRoom(val id: String, val room: Room) {
 
     // Users that have logged out in the past 5 seconds
     private val bufferUsers = ConcurrentHashSet<User>()
+    // Users that are online right now
     val onlineUsers = ConcurrentHashSet<User>()
+
+    // Private IDs of users
+    val privateIds = ConcurrentHashMap<User, String>()
 
     // Removes online users that have closed the connection
     fun removeClosed() {
@@ -76,7 +82,9 @@ class ChatRoom(val id: String, val room: Room) {
         ))
     }
 
-    // Gets called by the ChatSocket when a WebSocket messages comes in
+    /**
+     * Gets called by the ChatSocket when a WebSocket messages comes in
+     */
     fun onMessage(message: JsonObject, user: User) {
         when (message.get("type").asString) {
             "message" -> {
@@ -98,7 +106,6 @@ class ChatRoom(val id: String, val room: Room) {
                     return
                 }
                 val image = message.get("image").asString
-                println(image)
                 val splitImage = image.split(",")
                 if (splitImage.size == 1 ||
                         Regex("data:image/*\\([a-zA-Z]+\\) *(.+);base64").matches(splitImage[0])) {
@@ -131,6 +138,20 @@ class ChatRoom(val id: String, val room: Room) {
                 ))
             }
         }
+    }
+
+    /**
+     * Return online users as json, for unichat.kt
+     */
+    fun onlineUsersAsJson(): String {
+        return gson.toJson(
+                onlineUsers.map {
+                    JsonObject().apply {
+                        addProperty("username", it.username)
+                        addProperty("user-id", it.publicId)
+                    }
+                }
+        )
     }
 
     private fun imgToBase64String(img: RenderedImage, formatName: String): String {

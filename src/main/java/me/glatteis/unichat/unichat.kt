@@ -53,6 +53,21 @@ fun main(args: Array<String>) {
         val query = request.queryParams("q")
         UniData.findRoomsInJson(query)
     }
+    before("/onlineusers") { request, _ ->
+        val roomId = request.queryParams("room")
+        if (roomId == null || roomId.isBlank()) {
+            halt(403, "Room is null or empty")
+        }
+        if (!chatRooms.containsKey(roomId)) {
+            halt(403, "This room does not exist")
+        }
+    }
+    get("/onlineusers") { request, response ->
+        response.type("application/json")
+        val roomId = request.queryParams("room")
+        val room = chatRooms[roomId] ?: return@get ""
+        room.onlineUsersAsJson()
+    }
 
 }
 

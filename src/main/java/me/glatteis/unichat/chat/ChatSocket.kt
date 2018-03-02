@@ -44,7 +44,8 @@ object ChatSocket {
                 else -> {
                     // If the user desires to have an identity, search for their identity or create a new one
                     val publicId = if (message.has("user-id-secret")) {
-                        UserDatabase.getPublicId(message["user-id-secret"].asString)
+                        val privateId = message["user-id-secret"]
+                        UserIdentification.getPublicId(privateId.asString)
                     } else {
                         "anonymous:$username"
                     }
