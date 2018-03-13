@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
     UniData.init()
 
     if (FILE_DIRECTORY.exists()) {
-        FILE_DIRECTORY.delete()
+        FILE_DIRECTORY.deleteRecursively()
     }
     FILE_DIRECTORY.mkdir()
 
@@ -83,7 +83,7 @@ fun main(args: Array<String>) {
         room.onlineUsersAsJson()
     }
     post("/imgupload") { request, _ ->
-        val tempFile = Files.createTempFile(FILE_DIRECTORY.toPath(), "", "png")
+        val tempFile = Files.createTempFile(FILE_DIRECTORY.toPath(), "", "")
 
         request.attribute("org.eclipse.jetty.multipartConfig", MultipartConfigElement("/temp"))
         try {
@@ -93,8 +93,6 @@ fun main(args: Array<String>) {
         } catch (e: Exception) {
             return@post e.localizedMessage
         }
-        println("Uploaded ${tempFile.fileName}")
-
         Timer().schedule(30_000) {
             println("Deleting ${tempFile.fileName}")
             Files.delete(tempFile)
