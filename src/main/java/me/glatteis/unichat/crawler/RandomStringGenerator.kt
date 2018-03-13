@@ -5,7 +5,7 @@ import java.util.*
 /**
  * Created by Linus on 19.03.2017!
  */
-class RandomStringGenerator(val random: Random) {
+class RandomStringGenerator(private val random: Random) {
 
     // Characters to use in search query
     private val alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray()

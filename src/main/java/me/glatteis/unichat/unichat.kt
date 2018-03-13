@@ -8,6 +8,12 @@ import me.glatteis.unichat.chat.ChatSocket
 import me.glatteis.unichat.data.UniData
 import spark.Filter
 import spark.Spark.*
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import javax.servlet.MultipartConfigElement
+
+
 
 
 /**
@@ -17,9 +23,14 @@ import spark.Spark.*
 val chatRooms = HashMap<String, ChatRoom>()
 val gson: Gson = Converters.registerAll(GsonBuilder()).create()
 const val DO_NOT_UPDATE = false
+val FILE_DIRECTORY = File("images/")
 
 fun main(args: Array<String>) {
     UniData.init()
+
+    if (!FILE_DIRECTORY.exists()) {
+        FILE_DIRECTORY.mkdir()
+    }
 
     val portAsString = if (args.isNotEmpty()) args[0] else "4567"
     val thisPort = portAsString.toInt()
@@ -68,6 +79,19 @@ fun main(args: Array<String>) {
         val room = chatRooms[roomId] ?: return@get ""
         room.onlineUsersAsJson()
     }
+    post("/imgupload") { request, _ ->
+        val tempFile = Files.createTempFile(FILE_DIRECTORY.toPath(), "", "")
+
+        request.attribute("org.eclipse.jetty.multipartConfig", MultipartConfigElement("/temp"))
+        try {
+            request.raw().getPart("uploaded_file").inputStream.use({ input ->
+                Files.copy(input, tempFile, StandardCopyOption.REPLACE_EXISTING)
+            })
+        } catch (e: Exception) {
+            return@post e.localizedMessage
+        }
+
+        tempFile.fileName
+    }
 
 }
-

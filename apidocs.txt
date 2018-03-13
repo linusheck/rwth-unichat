@@ -60,15 +60,18 @@ Send when you want to login to a room.
     Params
 
 "room": # ID of the room that you're trying to login to (you should get that from the /allrooms or /searchrooms query (String)
-"user-id-secret": # TODO: YOUR STATIC USER ID SECRET FOR FRIEND SYSTEM
 "username": # Your desired username (String)
+optional:
+    "user-id" # (BigInteger) Your public user ID (RSA public key) - If you want to identify yourself. See CHALLENGE & RESPONSE LOGIN
+    "challenge-response" # (String) Response to your challenge
 
     Example
 {
     "type": "login",
     "room": "abc123",
     "username": "Supergrobi"
-    "user-id-secret": <your secret string>
+    "user-id": <your public string>
+    "challenge-response": <your challenge response> (base64)
 }
 
     CHAT MESSAGE
@@ -104,6 +107,7 @@ Sent when there's an error.
     Params
 
 "reason": # Human-readable message of what happened (String)
+"id": # ID of the error
 
 
     CHAT MESSAGE
@@ -141,7 +145,7 @@ Sent when someone logged into your room
     Params
 
 "username": # Username of the person that logged in
-"user-id" // # Static user id of this person
+"user-id" # Static user id of this person
 
 
     LOGOUT INFO MESSAGE
@@ -155,4 +159,33 @@ Sent when someone logged out of your room
 "username": # Username of the person that logged out
 "user-id" # Static user id of this person
 
+    CHALLENGE-RESPONSE AUTHENTICATION
 
+To achieve unique and unfakable ids, challenge-and-response authentication is used.
+
+Step 1: The user creates an RSA private & public key.
+Step 2: The user sends their public key to the server.
+Step 3: The server generates a random string and encrypts it with the user's public key.
+Step 4: To prove that the user owns the private key associated to their public key, the server sends that
+string to the user to be decrypted using their private key.
+Step 5: The user sends the decrypted string (which should be the original random string) back to the server.
+Step 6: The server checks if the returned string matches with the original string. If yes, we are done.
+
+For a code example, see src/test/java/me.glatteis.unichat.chat/UserIdentificationTest.java
+
+To login with a private/public RSA key pair:
+
+1. Send a message with type challenge:
+{
+    "type": "challenge",
+    "user-id": <your public key modulus>
+}
+
+2. You will receive this message:
+You will receive this message:
+{
+    "type": "challenge"
+    "challenge": <challenge string> (base64)
+}
+Decode challenge to a byte array and decrypt it with your private key. Encode the result in base64 and send it with
+the login message.

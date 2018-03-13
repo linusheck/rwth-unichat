@@ -7,7 +7,8 @@ fun <A, B> Gson.jsonMap(vararg pairs: Pair<A, B>): String {
     return toJson(pairs.toMap())
 }
 
-fun Session.error(reason: String) = remote.sendString(gson.jsonMap(
+fun Session.error(reason: String, id: ErrorCode) = remote.sendString(gson.jsonMap(
         "type" to "error",
-        "reason" to reason
+        "reason" to reason,
+        "id" to id.value
 ))

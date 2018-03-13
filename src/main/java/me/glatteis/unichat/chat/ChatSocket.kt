@@ -1,13 +1,14 @@
 package me.glatteis.unichat.chat
 
 import com.google.gson.JsonParser
-import me.glatteis.unichat.chatRooms
-import me.glatteis.unichat.error
+import me.glatteis.unichat.*
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
 import org.eclipse.jetty.websocket.api.annotations.WebSocket
+import java.security.InvalidKeyException
+import java.util.*
 
 @WebSocket
 object ChatSocket {
@@ -38,20 +39,27 @@ object ChatSocket {
             val username = message.get("username")?.asString
             val chatRoom = chatRooms[roomString]
             when {
-                chatRoom == null -> session.error("This room does not exist")
-                username == null -> session.error("You have not specified a username")
-                username.length > 32 -> session.error("Your username is too long")
+                chatRoom == null -> session.error("This room does not exist", ErrorCode.ROOM_DOES_NOT_EXIST)
+                username == null -> session.error("You have not specified a username", ErrorCode.USERNAME_EMPTY)
+                username.isBlank() -> session.error("Your username is blank", ErrorCode.USERNAME_BLANK)
+                username.length > 32 -> session.error("Your username is too long", ErrorCode.USERNAME_TOO_LONG)
                 else -> {
-                    // If the user desires to have an identity, search for their identity or create a new one
-                    val publicId = if (message.has("user-id-secret")) {
-                        val privateId = message["user-id-secret"]
-                        UserIdentification.getPublicId(privateId.asString)
+                    val publicId = if (message.has("user-id") && message.has("challenge-response")) {
+                        val publicKey = message["user-id"].asBigInteger
+                        val challengeResponse = message["challenge-response"].asString
+                        if (UserIdentification.verifyChallenge(publicKey, challengeResponse)) {
+                            publicKey.toString()
+                        } else {
+                            session.error("Your challenge response is not valid", ErrorCode.INVALID_CHALLENGE_RESPONSE)
+                            return
+                        }
                     } else {
                         "anonymous:$username"
                     }
+
                     chatRoom.removeClosed()
                     if (chatRoom.onlineUsers.any { it.publicId == publicId || it.username == username }) {
-                        session.error("A user with your ID or your nickname is already logged in")
+                        session.error("A user with your ID or your nickname is already logged in", ErrorCode.DUPLICATE_USER)
                         return
                     }
 
@@ -64,11 +72,31 @@ object ChatSocket {
                     chatRoom.onLogin(user)
                 }
             }
+        } else if (message["type"].asString == "challenge") {
+
+            if (!message.has("user-id")) {
+                session.error("Missing user-id", ErrorCode.USER_ID_EMPTY)
+                return
+            }
+            val publicKey = message["user-id"].asString
+            println("Challenge: $publicKey")
+            val challenge: String
+            try {
+                challenge = UserIdentification.createChallenge(publicKey)
+            } catch (e: InvalidKeyException) {
+                session.error(e.message ?: "Invalid key", ErrorCode.INVALID_KEY)
+                return
+            }
+            println("Returning $challenge")
+            session.remote.sendString(gson.jsonMap(
+                    "type" to "challenge",
+                    "challenge" to challenge
+            ))
         } else {
             // Else our user should already exist and wants to send a message to their room
             val user = socketsToRooms[session]
             if (user == null) {
-                session.error("You are not logged in")
+                session.error("You are not logged in", ErrorCode.NOT_LOGGED_IN)
                 return
             }
             user.room.onMessage(message, user)
