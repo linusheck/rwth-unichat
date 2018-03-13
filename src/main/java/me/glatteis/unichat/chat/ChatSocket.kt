@@ -45,7 +45,7 @@ object ChatSocket {
                 username.length > 32 -> session.error("Your username is too long", ErrorCode.USERNAME_TOO_LONG)
                 else -> {
                     val publicId = if (message.has("user-id") && message.has("challenge-response")) {
-                        val publicKey = message["user-id"].asBigInteger
+                        val publicKey = message["user-id"].asString
                         val challengeResponse = message["challenge-response"].asString
                         if (UserIdentification.verifyChallenge(publicKey, challengeResponse)) {
                             publicKey.toString()

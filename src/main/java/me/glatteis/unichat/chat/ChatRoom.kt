@@ -4,14 +4,8 @@ import com.google.gson.JsonObject
 import me.glatteis.unichat.*
 import me.glatteis.unichat.data.Room
 import org.eclipse.jetty.util.ConcurrentHashSet
-import java.awt.image.BufferedImage
-import java.awt.image.RenderedImage
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import javax.imageio.ImageIO
 import kotlin.concurrent.schedule
 
 
@@ -96,47 +90,6 @@ class ChatRoom(val id: String, val room: Room) {
                         "time" to now().second.millisOfDay
                 ))
             }
-//
-//            "image" -> {
-//                if (!message.has("image")) {
-//                    user.webSocket.error("Message has no attribute 'image'", ErrorCode.IMAGE_EMPTY)
-//                    return
-//                }
-//                val image = message.get("image").asString
-//
-//                val splitImage = image.split(",")
-//                if (splitImage.size == 1 ||
-//                        Regex("data:image/*\\([a-zA-Z]+\\) *(.+);base64").matches(splitImage[0])) {
-//                    user.webSocket.error("The provided image is not a valid base64 image (not correct format)", ErrorCode.INVALID_BASE64_IMAGE)
-//                    return
-//                }
-//                val bufferedImage: BufferedImage
-//                try {
-//                    bufferedImage = base64StringToImg(splitImage[1])
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                    user.webSocket.error("The provided image is not a valid base64 image (couldn't convert to img)", ErrorCode.INVALID_BASE64_IMAGE)
-//                    return
-//                }
-//                val base64String: String
-//                try {
-//                    base64String = splitImage[0] + "," + imgToBase64String(bufferedImage, "png")
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                    user.webSocket.error("The provided image is not a valid base64 image (couldn't convert back to base64)", ErrorCode.INVALID_BASE64_IMAGE)
-//                    return
-//                }
-//
-//                sendToAll(gson.jsonMap(
-//                        "type" to "image",
-//                        "username" to user.username,
-//                        "user-id" to user.publicId,
-//                        "image" to base64String,
-//                        "time" to now().second.millisOfDay
-//                ))
-//
-//            }
-
             "image" -> {
                 if (!message.has("image")) {
                     user.webSocket.error("Message has no attribute 'image'", ErrorCode.IMAGE_EMPTY)
@@ -170,17 +123,4 @@ class ChatRoom(val id: String, val room: Room) {
                 }
         )
     }
-
-    private fun imgToBase64String(img: RenderedImage, formatName: String): String {
-        val outputStream = ByteArrayOutputStream()
-        ImageIO.write(img, formatName, Base64.getEncoder().wrap(outputStream))
-        return outputStream.toString(StandardCharsets.ISO_8859_1.name())
-    }
-
-    private fun base64StringToImg(base64String: String): BufferedImage {
-        return ImageIO.read(ByteArrayInputStream(Base64.getDecoder().decode(base64String)))
-    }
 }
-/*
-
- */

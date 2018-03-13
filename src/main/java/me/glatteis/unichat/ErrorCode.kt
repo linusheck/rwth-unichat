@@ -13,6 +13,4 @@ enum class ErrorCode(val value: Int) {
     IMAGE_EMPTY(9),
     MESSAGE_EMPTY(10),
     NONEXISTENT_IMAGE(12),
-    // To remove
-    INVALID_BASE64_IMAGE(11)
 }

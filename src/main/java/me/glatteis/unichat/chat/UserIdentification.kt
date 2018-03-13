@@ -5,11 +5,14 @@ import org.joda.time.DateTime
 import sun.security.rsa.RSAPublicKeyImpl
 import java.math.BigInteger
 import java.security.InvalidKeyException
+import java.security.KeyFactory
 import java.security.SecureRandom
+import java.security.spec.X509EncodedKeySpec
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.crypto.Cipher
 import kotlin.concurrent.timer
+
 
 object UserIdentification {
 
@@ -37,32 +40,37 @@ object UserIdentification {
         }
     }
 
-    private val EXP = 65537.toBigInteger()
-
     private const val MODE = "RSA/ECB/PKCS1Padding"
 
     private val randomStringGenerator = RandomStringGenerator(SecureRandom())
 
     fun createChallenge(publicKeyBase64: String): String {
-        val publicKey = BigInteger(Base64.getDecoder().decode(publicKeyBase64))
+        val key = getPublicKey(publicKeyBase64)
         val cipher = Cipher.getInstance(MODE)
-        val key = RSAPublicKeyImpl(publicKey, EXP)
-        println(key.modulus.bitLength())
         if (key.modulus.bitLength() != 1024) {
             throw InvalidKeyException("Key modulus length not 1024")
         }
+
         cipher.init(Cipher.ENCRYPT_MODE, key)
         // The random challenge
         val byteArray = randomStringGenerator.randomString(32).toByteArray(charset("utf-8"))
         val challenge = Base64.getEncoder().encodeToString(byteArray)
-        openChallenges[publicKey] = Challenge(publicKey, challenge, DateTime.now())
+        openChallenges[key.modulus] = Challenge(key.modulus, challenge, DateTime.now())
         val final = cipher.doFinal(byteArray)
         return Base64.getEncoder().encodeToString(final)
     }
 
-    fun verifyChallenge(publicKey: BigInteger, result: String): Boolean {
+    fun verifyChallenge(publicKeyBase64: String, result: String): Boolean {
+        val publicKey = getPublicKey(publicKeyBase64).modulus
         val challenge = openChallenges[publicKey] ?: return false
         return challenge.challengeString == result
+    }
+
+    fun getPublicKey(pem: String): RSAPublicKeyImpl {
+        val keyBytes = Base64.getDecoder().decode(pem)
+        val spec = X509EncodedKeySpec(keyBytes)
+        val kf = KeyFactory.getInstance("RSA")
+        return kf.generatePublic(spec) as RSAPublicKeyImpl
     }
 
 }

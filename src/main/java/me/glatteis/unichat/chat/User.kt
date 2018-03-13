@@ -6,5 +6,4 @@ data class User(val room: ChatRoom, val username: String, val publicId: String, 
 
     fun isOpen() = webSocket.isOpen
 
-
 }
