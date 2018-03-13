@@ -96,46 +96,48 @@ class ChatRoom(val id: String, val room: Room) {
                         "time" to now().second.millisOfDay
                 ))
             }
+//
+//            "image" -> {
+//                if (!message.has("image")) {
+//                    user.webSocket.error("Message has no attribute 'image'", ErrorCode.IMAGE_EMPTY)
+//                    return
+//                }
+//                val image = message.get("image").asString
+//
+//                val splitImage = image.split(",")
+//                if (splitImage.size == 1 ||
+//                        Regex("data:image/*\\([a-zA-Z]+\\) *(.+);base64").matches(splitImage[0])) {
+//                    user.webSocket.error("The provided image is not a valid base64 image (not correct format)", ErrorCode.INVALID_BASE64_IMAGE)
+//                    return
+//                }
+//                val bufferedImage: BufferedImage
+//                try {
+//                    bufferedImage = base64StringToImg(splitImage[1])
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                    user.webSocket.error("The provided image is not a valid base64 image (couldn't convert to img)", ErrorCode.INVALID_BASE64_IMAGE)
+//                    return
+//                }
+//                val base64String: String
+//                try {
+//                    base64String = splitImage[0] + "," + imgToBase64String(bufferedImage, "png")
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                    user.webSocket.error("The provided image is not a valid base64 image (couldn't convert back to base64)", ErrorCode.INVALID_BASE64_IMAGE)
+//                    return
+//                }
+//
+//                sendToAll(gson.jsonMap(
+//                        "type" to "image",
+//                        "username" to user.username,
+//                        "user-id" to user.publicId,
+//                        "image" to base64String,
+//                        "time" to now().second.millisOfDay
+//                ))
+//
+//            }
+
             "image" -> {
-                if (!message.has("image")) {
-                    user.webSocket.error("Message has no attribute 'image'", ErrorCode.IMAGE_EMPTY)
-                    return
-                }
-                val image = message.get("image").asString
-
-                val splitImage = image.split(",")
-                if (splitImage.size == 1 ||
-                        Regex("data:image/*\\([a-zA-Z]+\\) *(.+);base64").matches(splitImage[0])) {
-                    user.webSocket.error("The provided image is not a valid base64 image (not correct format)", ErrorCode.INVALID_BASE64_IMAGE)
-                    return
-                }
-                val bufferedImage: BufferedImage
-                try {
-                    bufferedImage = base64StringToImg(splitImage[1])
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    user.webSocket.error("The provided image is not a valid base64 image (couldn't convert to img)", ErrorCode.INVALID_BASE64_IMAGE)
-                    return
-                }
-                val base64String: String
-                try {
-                    base64String = splitImage[0] + "," + imgToBase64String(bufferedImage, "png")
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    user.webSocket.error("The provided image is not a valid base64 image (couldn't convert back to base64)", ErrorCode.INVALID_BASE64_IMAGE)
-                    return
-                }
-
-                sendToAll(gson.jsonMap(
-                        "type" to "image",
-                        "username" to user.username,
-                        "user-id" to user.publicId,
-                        "image" to base64String,
-                        "time" to now().second.millisOfDay
-                ))
-
-            }
-            "image_new" -> {
                 if (!message.has("image")) {
                     user.webSocket.error("Message has no attribute 'image'", ErrorCode.IMAGE_EMPTY)
                     return
@@ -144,9 +146,8 @@ class ChatRoom(val id: String, val room: Room) {
                 FILE_DIRECTORY.listFiles { file ->
                     file.name == imageCode
                 }.firstOrNull() ?: user.webSocket.error("This image does not exist", ErrorCode.NONEXISTENT_IMAGE)
-                println("Ho")
                 sendToAll(gson.jsonMap(
-                        "type" to "image_new",
+                        "type" to "image",
                         "username" to user.username,
                         "user-id" to user.publicId,
                         "image" to imageCode,

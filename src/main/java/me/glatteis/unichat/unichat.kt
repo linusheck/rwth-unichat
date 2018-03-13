@@ -11,10 +11,11 @@ import spark.Response
 import spark.Spark.*
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.util.*
 import javax.servlet.MultipartConfigElement
 import javax.servlet.http.HttpServletResponse
+import kotlin.concurrent.schedule
 
 
 /**
@@ -29,9 +30,10 @@ val FILE_DIRECTORY = File("images/")
 fun main(args: Array<String>) {
     UniData.init()
 
-    if (!FILE_DIRECTORY.exists()) {
-        FILE_DIRECTORY.mkdir()
+    if (FILE_DIRECTORY.exists()) {
+        FILE_DIRECTORY.delete()
     }
+    FILE_DIRECTORY.mkdir()
 
     val portAsString = if (args.isNotEmpty()) args[0] else "4567"
     val thisPort = portAsString.toInt()
@@ -81,7 +83,7 @@ fun main(args: Array<String>) {
         room.onlineUsersAsJson()
     }
     post("/imgupload") { request, _ ->
-        val tempFile = Files.createTempFile(FILE_DIRECTORY.toPath(), "", "")
+        val tempFile = Files.createTempFile(FILE_DIRECTORY.toPath(), "", "png")
 
         request.attribute("org.eclipse.jetty.multipartConfig", MultipartConfigElement("/temp"))
         try {
@@ -90,6 +92,12 @@ fun main(args: Array<String>) {
             })
         } catch (e: Exception) {
             return@post e.localizedMessage
+        }
+        println("Uploaded ${tempFile.fileName}")
+
+        Timer().schedule(30_000) {
+            println("Deleting ${tempFile.fileName}")
+            Files.delete(tempFile)
         }
 
         tempFile.fileName
@@ -112,7 +120,7 @@ fun getImage(response: Response, fileName: String): HttpServletResponse? {
     }
 
     val raw = response.raw()
-    response.type("image/png")
+    response.type("image")
     response.header("Pragma-directive", "no-cache")
     response.header("Cache-directive", "no-cache")
     response.header("Cache-control", "no-cache")
