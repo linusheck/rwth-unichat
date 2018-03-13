@@ -7,13 +7,14 @@ import me.glatteis.unichat.chat.ChatRoom
 import me.glatteis.unichat.chat.ChatSocket
 import me.glatteis.unichat.data.UniData
 import spark.Filter
+import spark.Response
 import spark.Spark.*
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import javax.servlet.MultipartConfigElement
-
-
+import javax.servlet.http.HttpServletResponse
 
 
 /**
@@ -94,4 +95,36 @@ fun main(args: Array<String>) {
         tempFile.fileName
     }
 
+    get("/image/*") { request, response ->
+        getImage(response, request.splat()[0])
+    }
+}
+
+fun getImage(response: Response, fileName: String): HttpServletResponse? {
+    val path = FILE_DIRECTORY.listFiles { file ->
+        file.name == fileName
+    }.firstOrNull()?.toPath() ?: return null
+    var data: ByteArray? = null
+    try {
+        data = Files.readAllBytes(path)
+    } catch (e1: Exception) {
+        e1.printStackTrace()
+    }
+
+    val raw = response.raw()
+    response.type("image/png")
+    response.header("Pragma-directive", "no-cache")
+    response.header("Cache-directive", "no-cache")
+    response.header("Cache-control", "no-cache")
+    response.header("Pragma", "no-cache")
+    response.header("Expires", "0")
+    try {
+        raw.outputStream.write(data)
+        raw.outputStream.flush()
+        raw.outputStream.close()
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+
+    return raw
 }

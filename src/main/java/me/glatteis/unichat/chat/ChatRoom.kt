@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.imageio.ImageIO
-import javax.swing.JScrollBar
 import kotlin.concurrent.schedule
 
 
@@ -135,6 +134,24 @@ class ChatRoom(val id: String, val room: Room) {
                         "time" to now().second.millisOfDay
                 ))
 
+            }
+            "image_new" -> {
+                if (!message.has("image")) {
+                    user.webSocket.error("Message has no attribute 'image'", ErrorCode.IMAGE_EMPTY)
+                    return
+                }
+                val imageCode = message.get("image").asString
+                FILE_DIRECTORY.listFiles { file ->
+                    file.name == imageCode
+                }.firstOrNull() ?: user.webSocket.error("This image does not exist", ErrorCode.NONEXISTENT_IMAGE)
+                println("Ho")
+                sendToAll(gson.jsonMap(
+                        "type" to "image_new",
+                        "username" to user.username,
+                        "user-id" to user.publicId,
+                        "image" to imageCode,
+                        "time" to now().second.millisOfDay
+                ))
             }
         }
     }
