@@ -10,6 +10,7 @@ import me.glatteis.unichat.crawler.RandomStringGenerator
 import me.glatteis.unichat.gson
 import me.glatteis.unichat.now
 import org.joda.time.DateTime
+import org.joda.time.LocalTime
 import java.io.File
 import java.security.SecureRandom
 import java.util.*
@@ -74,8 +75,13 @@ object UniData {
     // Crawl for new data and set that as the current data
     private fun crawl() {
         val crawler = Crawler()
-        val rooms = crawler.getEverything() + Room("Unichat Chat", "general", "",
-                Int.MAX_VALUE, "General", RoomCalendar(ArrayList()))
+        val rooms = crawler.getEverything() +
+                Room("Unichat Chat", "general", "", Int.MAX_VALUE, "General", RoomCalendar(
+                        Weekday.values().map {
+                            Occurrence("Party", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
+                        }
+                )
+                )
         swapRooms(rooms)
     }
 

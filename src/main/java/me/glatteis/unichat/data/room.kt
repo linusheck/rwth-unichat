@@ -38,4 +38,4 @@ enum class Weekday {
 
 data class Occurrence(val name: String, val start: LocalTime, val end: LocalTime, val weekday: Weekday)
 
-data class RoomCalendar(val occurrences: ArrayList<Occurrence>)
+data class RoomCalendar(val occurrences: List<Occurrence>)
