@@ -27,6 +27,9 @@ val gson: Gson = Converters.registerAll(GsonBuilder()).create()
 const val DO_NOT_UPDATE = false
 val FILE_DIRECTORY = File("images/")
 
+// Put your debug ip here
+const val DEBUG_IP = ""
+
 fun main(args: Array<String>) {
     UniData.init()
 
@@ -41,6 +44,9 @@ fun main(args: Array<String>) {
     webSocket("/chatsocket", ChatSocket)
     port(thisPort)
 
+    if (DEBUG_IP.isNotBlank()) {
+        ipAddress(DEBUG_IP)
+    }
 
     before(Filter { _, response ->
         response.header("Access-Control-Allow-Origin", "*")
