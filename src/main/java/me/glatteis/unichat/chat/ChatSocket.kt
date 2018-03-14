@@ -85,6 +85,7 @@ object ChatSocket {
                 try {
                     challenge = UserIdentification.createChallenge(publicKey)
                 } catch (e: InvalidKeyException) {
+                    e.printStackTrace()
                     session.error(e.message ?: "Invalid key", ErrorCode.INVALID_KEY)
                     return
                 }

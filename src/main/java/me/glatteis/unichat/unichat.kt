@@ -87,9 +87,9 @@ fun main(args: Array<String>) {
 
         request.attribute("org.eclipse.jetty.multipartConfig", MultipartConfigElement("/temp"))
         try {
-            request.raw().getPart("uploaded_file").inputStream.use({ input ->
+            request.raw().getPart("uploaded_file").inputStream.use { input ->
                 Files.copy(input, tempFile, StandardCopyOption.REPLACE_EXISTING)
-            })
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             return@post e.localizedMessage
