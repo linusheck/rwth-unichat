@@ -91,6 +91,7 @@ fun main(args: Array<String>) {
                 Files.copy(input, tempFile, StandardCopyOption.REPLACE_EXISTING)
             })
         } catch (e: Exception) {
+            e.printStackTrace()
             return@post e.localizedMessage
         }
         Timer().schedule(30_000) {
