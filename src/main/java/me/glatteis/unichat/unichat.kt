@@ -46,10 +46,6 @@ fun main(args: Array<String>) {
         response.header("Access-Control-Allow-Origin", "*")
     })
 
-    get("/") { _, response ->
-        response.redirect("https://unichat.github.io")
-    }
-
     // Returns a complete list of rooms
     get("/allrooms") { _, response ->
         response.type("application/json")

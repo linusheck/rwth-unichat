@@ -58,7 +58,7 @@ object UniData {
         // If data is too old, crawl the servers for new data
         timer(period = 60 * 60 * 1000L, daemon = true) {
             if (lastUpdate.isBefore(DateTime.now().minusHours(4)) && !DO_NOT_UPDATE) {
-                println("Data is too old")
+                println("ChatRoomData is too old")
                 thread {
                     try {
                         println("Crawling for new data...")
@@ -80,8 +80,7 @@ object UniData {
                         Weekday.values().map {
                             Occurrence("Party", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
                         }
-                )
-                )
+                ))
         swapRooms(rooms)
     }
 
@@ -95,7 +94,7 @@ object UniData {
 
     // Load week.json file and set it as current data
     private fun loadFromJson() {
-        val loadedList: Data = gson.fromJson<Data>(File("week.json").readText(), Data::class.java)
+        val loadedList: ChatRoomData = gson.fromJson<ChatRoomData>(File("week.json").readText(), ChatRoomData::class.java)
         lastUpdate = loadedList.lastUpdate
         swapRooms(loadedList.rooms.toList())
     }
@@ -129,7 +128,7 @@ object UniData {
     // Return current data as JSON for internal storage
     private fun asJson(): String {
         if (readBlock) return ""
-        return gson.toJson(Data(rooms.toTypedArray(), DateTime.now()))
+        return gson.toJson(ChatRoomData(rooms.toTypedArray(), DateTime.now()))
     }
 
     // Return current data as sendable JSON
@@ -177,12 +176,12 @@ object UniData {
         return gson.toJson(mapOf("query" to query, "rooms" to sublist))
     }
 
-    private data class Data(val rooms: Array<Room>, val lastUpdate: DateTime) {
+    private data class ChatRoomData(val rooms: Array<Room>, val lastUpdate: DateTime) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
-            other as Data
+            other as ChatRoomData
 
             if (!Arrays.equals(rooms, other.rooms)) return false
             if (lastUpdate != other.lastUpdate) return false
