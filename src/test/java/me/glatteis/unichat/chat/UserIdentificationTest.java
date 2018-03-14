@@ -44,12 +44,15 @@ class UserIdentificationTest {
          */
 
         // Generate the RSA key pair
-        KeyPair keyPair = KeyPairGenerator.getInstance("RSA").genKeyPair();
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        KeyPair keyPair = keyPairGenerator.genKeyPair();
         RSAPublicKeyImpl rsaPublicKey = (RSAPublicKeyImpl) keyPair.getPublic();
         assertTrue(rsaPublicKey.getModulus().bitLength() == 1024);
 
         // Generate the base64 encoded public key
         String base64PublicKey = publicKeyToPem(rsaPublicKey);
+
+        System.out.println(base64PublicKey);
 
         /*
         Once you have your RSA key, ask for a challenge using your public key
