@@ -119,11 +119,6 @@ fun getImage(response: Response, fileName: String): HttpServletResponse? {
 
     val raw = response.raw()
     response.type("image")
-    response.header("Pragma-directive", "no-cache")
-    response.header("Cache-directive", "no-cache")
-    response.header("Cache-control", "no-cache")
-    response.header("Pragma", "no-cache")
-    response.header("Expires", "0")
     try {
         raw.outputStream.write(data)
         raw.outputStream.flush()
