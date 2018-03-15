@@ -1,9 +1,11 @@
 package me.glatteis.unichat.chat
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import me.glatteis.unichat.*
 import me.glatteis.unichat.data.Room
 import org.eclipse.jetty.util.ConcurrentHashSet
+import java.io.StringReader
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.schedule
@@ -113,14 +115,15 @@ class ChatRoom(val id: String, val room: Room) {
     /**
      * Return online users as json, for unichat.kt
      */
-    fun onlineUsersAsJson(): String {
-        return gson.toJson(
-                onlineUsers.map {
+    fun onlineUsersAsJson(): JsonArray {
+        return gson.fromJson(
+                StringReader(onlineUsers.map {
                     JsonObject().apply {
                         addProperty("username", it.username)
                         addProperty("user-id", it.publicId)
                     }
-                }
+                }.toString()),
+                JsonArray::class.java
         )
     }
 }
