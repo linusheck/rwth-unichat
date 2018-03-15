@@ -110,7 +110,7 @@ object ChatSocket {
                 val onlineUsers = chatRoom.onlineUsersAsJson()
                 session.remote.sendString(gson.jsonMap(
                         "type" to "info-users",
-                        "users" to chatRoom.onlineUsers
+                        "users" to onlineUsers
                 ))
             }
             else -> {
