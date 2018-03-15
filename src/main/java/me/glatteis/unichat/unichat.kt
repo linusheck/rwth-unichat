@@ -28,7 +28,7 @@ const val DO_NOT_UPDATE = false
 val FILE_DIRECTORY = File("images/")
 
 // Put your debug ip here
-const val DEBUG_IP = ""
+const val DEBUG_IP = "192.168.178.73"
 
 fun main(args: Array<String>) {
     UniData.init()

@@ -102,13 +102,12 @@ object ChatSocket {
                     return
                 }
                 val room = user.room.id
-                println("Room: $room")
                 val chatRoom = chatRooms[room]
-                if(chatRoom == null){
+                if (chatRoom == null) {
                     session.error("This room does not exist", ErrorCode.ROOM_DOES_NOT_EXIST)
                     return
                 }
-                val onlineUsers = chatRoom?.onlineUsersAsJson()
+                val onlineUsers = chatRoom.onlineUsersAsJson()
                 session.remote.sendString(gson.jsonMap(
                         "type" to "info-users",
                         "users" to onlineUsers
