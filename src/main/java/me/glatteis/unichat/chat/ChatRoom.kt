@@ -113,14 +113,12 @@ class ChatRoom(val id: String, val room: Room) {
     /**
      * Return online users as json, for unichat.kt
      */
-    fun onlineUsersAsJson(): String {
-        return gson.toJson(
-                onlineUsers.map {
-                    JsonObject().apply {
-                        addProperty("username", it.username)
-                        addProperty("user-id", it.publicId)
-                    }
-                }
-        )
+    fun onlineUsersAsJson(): List<JsonObject> {
+        return onlineUsers.map {
+            JsonObject().apply {
+                addProperty("username", it.username)
+                addProperty("user-id", it.publicId)
+            }
+        }
     }
 }

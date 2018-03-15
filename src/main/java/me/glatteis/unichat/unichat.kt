@@ -81,7 +81,9 @@ fun main(args: Array<String>) {
         response.type("application/json")
         val roomId = request.queryParams("room")
         val room = chatRooms[roomId] ?: return@get ""
-        room.onlineUsersAsJson()
+        gson.jsonMap(
+                "users" to room.onlineUsersAsJson()
+        )
     }
     post("/imgupload") { request, _ ->
         val tempFile = Files.createTempFile(FILE_DIRECTORY.toPath(), "", "")
