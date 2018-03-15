@@ -75,13 +75,23 @@ object UniData {
     // Crawl for new data and set that as the current data
     private fun crawl() {
         val crawler = Crawler()
-        val rooms = crawler.getEverything() +
-                Room("Unichat Chat", "general", "", Int.MAX_VALUE, "General", RoomCalendar(
-                        Weekday.values().map {
-                            Occurrence("Party", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
-                        }
-                ))
+        val rooms = crawler.getEverything().customRooms()
         swapRooms(rooms)
+    }
+
+    private fun List<Room>.customRooms(): List<Room> {
+        // Add General Chat
+        val unichatChat = Room("General Chat", "general", "", Int.MAX_VALUE, "Unichat", RoomCalendar(
+                Weekday.values().map {
+                    Occurrence("Party", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
+                }
+        ))
+        // Closed buildings
+        val filteredBuildings = listOf("Kármán-Auditorium")
+        val filteredRooms = filterNot {
+            it.building in filteredBuildings
+        }
+        return filteredRooms + unichatChat
     }
 
     // Crawl for new data, set that as the current data, save it in the file week.json
@@ -165,14 +175,14 @@ object UniData {
         val sublist = rooms.map {
             it.sendable(weekday, time)
         }.filter {
-                    it.name.contains(query, ignoreCase = true) ||
-                            it.current.contains(query, ignoreCase = true) ||
-                            it.address.contains(query, ignoreCase = true) ||
-                            it.building.contains(query, ignoreCase = true) ||
-                            it.id.contains(query, ignoreCase = true)
-                }.sortedByDescending {
-                    it.seats
-                }
+            it.name.contains(query, ignoreCase = true) ||
+                    it.current.contains(query, ignoreCase = true) ||
+                    it.address.contains(query, ignoreCase = true) ||
+                    it.building.contains(query, ignoreCase = true) ||
+                    it.id.contains(query, ignoreCase = true)
+        }.sortedByDescending {
+            it.seats
+        }
         return gson.toJson(mapOf("query" to query, "rooms" to sublist))
     }
 

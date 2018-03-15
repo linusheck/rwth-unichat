@@ -27,7 +27,6 @@ val gson: Gson = Converters.registerAll(GsonBuilder()).create()
 const val DO_NOT_UPDATE = false
 val FILE_DIRECTORY = File("images/")
 
-// Put your debug ip here
 const val DEBUG_IP = ""
 
 fun main(args: Array<String>) {
