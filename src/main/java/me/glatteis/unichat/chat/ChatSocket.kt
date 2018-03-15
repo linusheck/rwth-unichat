@@ -95,6 +95,25 @@ object ChatSocket {
                         "challenge" to challenge
                 ))
             }
+            message["type"].asString == "get-users" -> {
+                val user = socketsToRooms[session]
+                if (user == null) {
+                    session.error("You are not logged in", ErrorCode.NOT_LOGGED_IN)
+                    return
+                }
+                val room = user.room.id
+                println("Room: $room")
+                val chatRoom = chatRooms[room]
+                if(chatRoom == null){
+                    session.error("This room does not exist", ErrorCode.ROOM_DOES_NOT_EXIST)
+                    return
+                }
+                val onlineUsers = chatRoom?.onlineUsersAsJson()
+                session.remote.sendString(gson.jsonMap(
+                        "type" to "info-users",
+                        "users" to onlineUsers
+                ))
+            }
             else -> {
                 // Else our user should already exist and wants to send a message to their room
                 val user = socketsToRooms[session]
