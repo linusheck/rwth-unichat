@@ -32,7 +32,6 @@ object UniData {
     // Prevent ConcurrentModificationException without much hassle
     var readBlock = false
 
-
     fun init() {
         // Load the file with data
         val file = File("week.json")
@@ -81,9 +80,23 @@ object UniData {
 
     private fun List<Room>.customRooms(): List<Room> {
         // Add General Chat
-        val unichatChat = Room("General Chat", "general", "", Int.MAX_VALUE, "Unichat", RoomCalendar(
+        val unichatChat = Room("General Chat", "general", "", Int.MAX_VALUE / 4, "Unichat", RoomCalendar(
                 Weekday.values().map {
                     Occurrence("Party", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
+                }
+        ))
+        // Add Mentoringkeller Chat
+        val mentoringkeller = Room("Mentoringkeller", "general", "", Int.MAX_VALUE / 4,
+                "Unichat", RoomCalendar(
+                Weekday.values().map {
+                    Occurrence("Was da halt so passiert", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
+                }
+        ))
+        // Add Mentoringkeller Chat
+        val mentoringkellerkeller = Room("Mentoringkellerkeller", "general", "", Int.MAX_VALUE / 4,
+                "Unichat", RoomCalendar(
+                Weekday.values().map {
+                    Occurrence("Fäkalien werden gehoben", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
                 }
         ))
         // Closed buildings
@@ -91,7 +104,7 @@ object UniData {
         val filteredRooms = filterNot {
             it.building in filteredBuildings
         }
-        return filteredRooms + unichatChat
+        return filteredRooms + listOf(unichatChat, mentoringkeller, mentoringkellerkeller)
     }
 
     // Crawl for new data, set that as the current data, save it in the file week.json
@@ -137,13 +150,17 @@ object UniData {
 
     // Return current data as JSON for internal storage
     private fun asJson(): String {
-        if (readBlock) return ""
+        while (readBlock) {
+
+        }
         return gson.toJson(ChatRoomData(rooms.toTypedArray(), DateTime.now()))
     }
 
     // Return current data as sendable JSON
     fun allAsSendable(): String {
-        if (readBlock) return ""
+        while (readBlock) {
+
+        }
         val (weekday, time) = now()
         val sendRooms = rooms.map {
             it.sendable(weekday, time)
@@ -170,7 +187,9 @@ object UniData {
 
     // Return query as sendable JSON
     fun findRoomsInJson(query: String): String {
-        if (readBlock) return ""
+        while (readBlock) {
+
+        }
         val (weekday, time) = now()
         val sublist = rooms.map {
             it.sendable(weekday, time)

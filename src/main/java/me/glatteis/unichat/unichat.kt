@@ -16,6 +16,7 @@ import java.util.*
 import javax.servlet.MultipartConfigElement
 import javax.servlet.http.HttpServletResponse
 import kotlin.concurrent.schedule
+import kotlin.concurrent.thread
 
 
 /**
@@ -30,7 +31,9 @@ val FILE_DIRECTORY = File("images/")
 const val DEBUG_IP = ""
 
 fun main(args: Array<String>) {
-    UniData.init()
+    thread {
+        UniData.init()
+    }
 
     if (FILE_DIRECTORY.exists()) {
         FILE_DIRECTORY.deleteRecursively()

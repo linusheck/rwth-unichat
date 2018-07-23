@@ -63,7 +63,8 @@ class Crawler {
                 if (!element.className().startsWith("blue")) continue
                 val tds = element.getElementsByTag("td")
                 val seats = tds[3].html().toIntOrNull() ?: 0
-                if (tds[5].html() !in listOf("Versammlungsraum", "Hörsaal")) continue
+                // Uncomment the next line to only provide Hörsäle
+                // if (tds[5].html() !in listOf("Versammlungsraum", "Hörsaal")) continue
                 val id = tds[0].html()
                 val name = if (tds[1].html().isBlank()) id else tds[1].html()
                 val address = tds[2].html()
