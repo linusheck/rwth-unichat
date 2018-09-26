@@ -97,7 +97,7 @@ object UniData {
         val filteredRooms = filterNot {
             it.building in filteredBuildings
         }
-        return filteredRooms + listOf(unichatChat, mentoringkeller, mentoringkellerkeller)
+        return filteredRooms + listOf(unichatChat, mentoringkeller)
     }
 
     // Crawl for new data, set that as the current data, save it in the file week.json
