@@ -82,21 +82,14 @@ object UniData {
         // Add General Chat
         val unichatChat = Room("General Chat", "general", "", Int.MAX_VALUE / 4, "Unichat", RoomCalendar(
                 Weekday.values().map {
-                    Occurrence("Party", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
+                    Occurrence("Über Unichat", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
                 }
         ))
         // Add Mentoringkeller Chat
         val mentoringkeller = Room("Mentoringkeller", "general", "", Int.MAX_VALUE / 4,
                 "Unichat", RoomCalendar(
                 Weekday.values().map {
-                    Occurrence("Was da halt so passiert", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
-                }
-        ))
-        // Add Mentoringkeller Chat
-        val mentoringkellerkeller = Room("Mentoringkellerkeller", "general", "", Int.MAX_VALUE / 4,
-                "Unichat", RoomCalendar(
-                Weekday.values().map {
-                    Occurrence("Fäkalien werden gehoben", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
+                    Occurrence("Über den Mentoringkeller", LocalTime.MIDNIGHT.plusMillis(1), LocalTime.MIDNIGHT.minusMillis(1), it)
                 }
         ))
         // Closed buildings
